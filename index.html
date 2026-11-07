@@ -314,6 +314,25 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
   .round{width:46px;height:46px}
   .show-pop{max-height:calc(100% - 70px);bottom:calc(var(--s2) + 56px)}
 }
+/* tablet portrait (iPad upright): model and dress canvas side by side ("double viewport"),
+   Undo/Clear under the canvas, then dresses, tabs and the scrolling tool pane full width */
+@media (max-aspect-ratio: 1/1) and (min-width: 600px){
+  main{grid-template-columns:46fr 54fr;grid-template-rows:auto auto auto auto minmax(0,1fr);background:var(--surface)}
+  .app:not(.show) .panel{display:contents}
+  .stage{grid-column:1;grid-row:1 / 3;border-right:3px solid var(--line)}
+  .canvas-row{grid-column:2;grid-row:1;padding:12px 12px 0;gap:12px}
+  .quick-tools{grid-column:2;grid-row:2;position:static;padding:10px 12px 12px;gap:10px;align-self:end}
+  .dresses{grid-column:1 / -1;grid-row:3;padding:12px 16px 0;border-top:3px solid var(--line)}
+  .tabs{grid-column:1 / -1;grid-row:4;padding:12px 16px 0}
+  .pane{grid-column:1 / -1;grid-row:5;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:12px 16px max(16px,env(safe-area-inset-bottom,0px))}
+  .palette-col{width:92px}
+  .palette{grid-template-columns:repeat(2,44px);gap:2px}
+  .palette .sw.wheelbtn{grid-column:1 / span 2;width:100%;border-radius:22px}
+  .paint-wrap{width:min(calc(100% - 104px),calc(100vh - 500px));width:min(calc(100% - 104px),calc(100dvh - 500px));min-width:220px}
+  .runway-btn{font-size:1.25rem;min-height:60px;padding-inline:24px}
+  .app.show main{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr)}
+  .app.show .stage{grid-row:1;grid-column:1;border-right:0}
+}
 @media (prefers-reduced-motion: reduce){
   .btn,.tool,.chip,.sw,.tab,.round,.iconbtn,.runway-btn,.back-btn{transition:none}
   .btn:active,.tool:active,.chip:active,.sw:active,.tab:active,.round:active,.iconbtn:active,.back-btn:active,.runway-btn:active{transform:none}
