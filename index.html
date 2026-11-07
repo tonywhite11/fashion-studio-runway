@@ -111,7 +111,7 @@ main{display:grid;grid-template-columns:52fr 48fr;min-height:0}
 .toast.on{opacity:1}
 .app.show main{grid-template-columns:1fr}
 .app.show .panel{display:none}
-.app.show #frontBtn{display:none}
+.app.show #frontBtn,.app.show #closetBtn{display:none}
 
 /* ---- panel (original layout: everything visible at once) ---- */
 .panel{
@@ -259,6 +259,18 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
 .whiteflash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
 .whiteflash.go{animation:wf .45s ease-out}
 @keyframes wf{0%{opacity:.45}100%{opacity:0}}
+/* my closet (saved outfits) */
+.card.closet{width:min(94vw,640px);align-items:stretch}
+.closet-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);font-weight:700;font-size:1.25rem}
+.closet .hint{text-align:center}
+.closet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:var(--s3);padding-top:8px}
+.outfit{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:4px;padding:6px;border-radius:var(--r);border:3px solid var(--line);background:var(--surface2);cursor:pointer;min-width:0;transition:transform .12s ease}
+.outfit:active{transform:scale(.96)}
+.closet .outfit img{width:100%;max-width:none;aspect-ratio:3/4;object-fit:cover;border-radius:12px;display:block;max-height:none;background:var(--bg2);pointer-events:none}
+.outfit .on{font-weight:600;font-size:.9rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.outfit .del{position:absolute;top:-8px;right:-8px;width:40px;height:40px;min-width:0;border-radius:50%;border:3px solid #fff;background:var(--ink);color:var(--surface);font-size:1rem;padding:0;display:grid;place-items:center;z-index:2;cursor:pointer}
+.outfit .del.sure{width:auto;padding:0 12px;border-radius:999px;background:#e11d48;color:#fff;font-weight:700;font-size:.85rem}
+.closet-empty{grid-column:1 / -1;text-align:center;color:var(--muted);font-weight:500;padding:var(--s4) 0;margin:0}
 /* photo overlay */
 .overlay{
   position:fixed;inset:0;z-index:50;background:rgba(30,10,50,.78);display:flex;align-items:center;justify-content:center;padding:var(--s4);
@@ -364,6 +376,7 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
       <div class="stage-tools">
         <button class="round" id="photoBtn" aria-label="Take photo" title="Photo">📸</button>
         <button class="round" id="frontBtn" aria-label="Front view" title="Front view">🔄</button>
+        <button class="round" id="closetBtn" aria-label="My closet: save and wear outfits" title="My closet">👗</button>
       </div>
       <div class="stage-ui" id="stageUi"><button class="runway-btn" id="runwayBtn">✨ Runway Show!</button></div>
       <div class="show-ctl"><button class="round" id="ctlBtn" aria-label="Stage and music" aria-expanded="false" title="Stage &amp; music">🎭</button></div>
@@ -465,6 +478,14 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
       <a class="btn primary" id="photoSave" hidden download="fashion-photo.png">💾 Save</a>
       <button class="btn" id="photoClose">Close</button>
     </div>
+  </div>
+</div>
+<div class="overlay hidden" id="closetOverlay" role="dialog" aria-label="My closet">
+  <div class="card closet">
+    <div class="closet-head"><span>👗 My Closet</span><button class="cp-x" id="closetClose" aria-label="Close closet">✕</button></div>
+    <button class="btn primary big" id="closetSave">＋ Save this outfit</button>
+    <p class="hint">Tap an outfit to wear it again</p>
+    <div class="closet-grid" id="closetGrid"></div>
   </div>
 </div>
 
@@ -2572,10 +2593,114 @@ function takePhoto() {
   setTimeout(() => $('#photoOverlay').classList.remove('hidden'), 280);
 }
 $('#photoBtn').addEventListener('click', takePhoto);
+
+/* ============================================================================
+   My Closet: save the whole outfit (dress + painting + look) and wear it again.
+   Stored in IndexedDB (lots of room) so it never crowds the auto-saves in localStorage.
+   ============================================================================ */
+const closet = (() => {
+  const MAX = 30, DB = 'fsr-closet', ST = 'outfits';
+  let dbp = null, items = [];
+  function db() {
+    if (!dbp) dbp = new Promise((res, rej) => {
+      try {
+        const r = indexedDB.open(DB, 1);
+        r.onupgradeneeded = () => r.result.createObjectStore(ST, { keyPath: 'id' });
+        r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+      } catch (e) { rej(e); }
+    }).catch(e => { dbp = null; throw e; });
+    return dbp;
+  }
+  const tx = (mode, fn) => db().then(d => new Promise((res, rej) => {
+    const t = d.transaction(ST, mode), s = t.objectStore(ST); const out = fn(s);
+    t.oncomplete = () => res(out && out.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+  }));
+  const load = () => tx('readonly', s => s.getAll()).then(a => { items = (a || []).sort((x, y) => y.t - x.t); return items; });
+  function thumb() {
+    try { active().getGarment().flush(); } catch (e) { } // push the latest drawing to the 3D dress first
+    renderer.render(scene, camera);
+    const src = renderer.domElement, W = 240, H = 320;
+    const out = document.createElement('canvas'); out.width = W; out.height = H; const c = out.getContext('2d');
+    let sh = src.height * .86, sw = sh * W / H; if (sw > src.width) { sw = src.width; sh = sw * H / W; }
+    c.drawImage(src, (src.width - sw) / 2, Math.max(0, (src.height - sh) * .35), sw, sh, 0, 0, W, H);
+    return out.toDataURL('image/jpeg', .82);
+  }
+  function snapshot() {
+    const ch = active(), g = ch.getGarment(); ensureGarment(g);
+    const cfg = JSON.parse(JSON.stringify(ch.cfg));
+    return { id: 'o' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), cfg,
+      design: { bg: g.bgSpec, deco: g.dc.toDataURL('image/png') }, thumb: thumb() };
+  }
+  function render() {
+    const grid = $('#closetGrid'); grid.replaceChildren();
+    if (!items.length) { const p = document.createElement('p'); p.className = 'closet-empty'; p.textContent = 'No outfits yet. Make something fabulous, then tap Save! ✨'; grid.append(p); }
+    items.forEach(o => {
+      const d = DRESSES.find(x => x.id === (o.cfg && o.cfg.dress));
+      const card = document.createElement('div'); card.className = 'outfit'; card.setAttribute('role', 'button'); card.tabIndex = 0;
+      card.setAttribute('aria-label', 'Wear outfit: ' + (d ? d.name : 'dress'));
+      const img = document.createElement('img'); img.src = o.thumb || ''; img.alt = '';
+      const nm = document.createElement('span'); nm.className = 'on'; nm.textContent = d ? d.name : 'Outfit';
+      const del = document.createElement('button'); del.className = 'del'; del.textContent = '✕'; del.setAttribute('aria-label', 'Delete this outfit');
+      del.addEventListener('click', e => {
+        e.stopPropagation();
+        if (!del.classList.contains('sure')) { del.classList.add('sure'); del.textContent = 'Delete?'; setTimeout(() => { if (del.isConnected) { del.classList.remove('sure'); del.textContent = '✕'; } }, 3000); return; }
+        tx('readwrite', s => s.delete(o.id)).then(load).then(render).catch(() => toast('Could not delete that one'));
+      });
+      card.addEventListener('click', () => wear(o));
+      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wear(o); } });
+      card.append(img, nm, del); grid.append(card);
+    });
+    $('#closetSave').disabled = false;
+  }
+  function wear(o) {
+    const ch = active(), c = o.cfg || {}, okIdx = (v, l) => Number.isInteger(v) && v >= 0 && v < l.length;
+    if (okIdx(c.skin, SKINS)) ch.setSkin(c.skin);
+    if (okIdx(c.hair, HAIRS)) ch.setHair(c.hair);
+    if (okIdx(c.shoe, SHOES)) ch.setShoe(c.shoe);
+    if (okIdx(c.eye, EYES)) ch.setEye(c.eye);
+    if (c.shoeStyle === 'boot' || c.shoeStyle === 'flat') ch.setShoeStyle(c.shoeStyle);
+    if (STYLES.some(x => x[0] === c.style)) ch.setHairStyle(c.style);
+    if (c.acc && typeof c.acc === 'object') ACC_KEYS.forEach(k => ch.setAcc(k, !!c.acc[k]));
+    if (EXPR_BY_ID[c.expr]) ch.setExpression(c.expr);
+    if (DRESSES.some(x => x.id === c.dress)) ch.setOutfit(c.dress);
+    clearTimeout(painter.saveT);
+    const g = ch.getGarment(), dsg = o.design;
+    if (dsg && dsg.deco) store.set(designKey(g), JSON.stringify(dsg)); // a first-time load of this dress picks up the outfit, not the old drawing
+    saveState(); refreshUI(); // mounts the dress on the canvas (fresh undo list)
+    if (dsg && dsg.deco) {
+      pushUndo(); // Undo brings back the drawing that was on this dress before
+      const img = new Image();
+      img.onload = () => { try { if (dsg.bg) { g.bgSpec = dsg.bg; paintBg(g); } g.ctx.clearRect(0, 0, N, N); g.ctx.drawImage(img, 0, 0, N, N); g.touch(); if (painter.g === g) scheduleSave(); } catch (e) { } };
+      img.src = dsg.deco;
+    }
+    close(); toast('Wearing your saved outfit! ✨');
+  }
+  function save() {
+    if (items.length >= MAX) { toast('Closet is full! Delete one with ✕ first'); return; }
+    const b = $('#closetSave'); b.disabled = true;
+    let o; try { o = snapshot(); } catch (e) { b.disabled = false; toast('Could not save, try again'); return; }
+    tx('readwrite', s => s.put(o)).then(load).then(() => { render(); wflash(); toast('Saved to your closet! 👗'); })
+      .catch(() => { b.disabled = false; toast('Could not save. The closet may be full.'); });
+  }
+  function open() {
+    $('#closetOverlay').classList.remove('hidden');
+    load().then(render).catch(() => {
+      items = []; render(); $('#closetSave').disabled = true;
+      $('#closetGrid').firstChild.textContent = 'The closet can\'t save in this browser (private mode?).';
+    });
+  }
+  function close() { const ov = $('#closetOverlay'); if (ov.classList.contains('hidden')) return false; ov.classList.add('hidden'); return true; }
+  $('#closetBtn').addEventListener('click', open);
+  $('#closetClose').addEventListener('click', close);
+  $('#closetSave').addEventListener('click', save);
+  $('#closetOverlay').addEventListener('pointerdown', e => { if (e.target.id === 'closetOverlay') close(); });
+  return { open, close, save, load, wear, get items() { return items; } };
+})();
+window.__closet = closet; // test hook
 $('#photoClose').addEventListener('click', () => $('#photoOverlay').classList.add('hidden'));
 $('#photoOverlay').addEventListener('pointerdown', e => { if (e.target.id === 'photoOverlay') $('#photoOverlay').classList.add('hidden'); });
 window.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (closeColorPop()) return; if (window.__closeNamePop && window.__closeNamePop()) return; if (!$('#photoOverlay').classList.contains('hidden')) $('#photoOverlay').classList.add('hidden'); else stopShow(); }
+  if (e.key === 'Escape') { if (closeColorPop()) return; if (closet.close()) return; if (window.__closeNamePop && window.__closeNamePop()) return; if (!$('#photoOverlay').classList.contains('hidden')) $('#photoOverlay').classList.add('hidden'); else stopShow(); }
 });
 
 /* ============================================================================
