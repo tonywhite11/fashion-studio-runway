@@ -43,8 +43,8 @@ button{font:inherit;color:inherit}
 .app{height:100vh;height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr)}
 
 /* ---- shared button language: one radius, press feedback, obvious selected state ---- */
-.btn,.tool,.chip,.sw,.step-tab,.round,.iconbtn,.runway-btn,.back-btn{transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease,border-color .12s ease;cursor:pointer}
-.btn:active,.tool:active,.chip:active,.sw:active,.step-tab:active,.round:active,.iconbtn:active,.back-btn:active{transform:scale(.94)}
+.btn,.tool,.chip,.sw,.tab,.round,.iconbtn,.runway-btn,.back-btn{transition:transform .12s ease,box-shadow .12s ease,background-color .12s ease,border-color .12s ease;cursor:pointer}
+.btn:active,.tool:active,.chip:active,.sw:active,.tab:active,.round:active,.iconbtn:active,.back-btn:active{transform:scale(.94)}
 .runway-btn:active{transform:scale(.96)}
 .btn{
   min-height:48px;min-width:48px;padding:0 var(--s4);border-radius:var(--r);border:2px solid var(--line);background:var(--surface2);color:var(--ink);
@@ -113,77 +113,66 @@ main{display:grid;grid-template-columns:55fr 45fr;min-height:0}
 .app.show .panel{display:none}
 .app.show #frontBtn{display:none}
 
-/* ---- panel + steps ---- */
+/* ---- panel (original layout: everything visible at once) ---- */
 .panel{
-  min-height:0;overflow-y:auto;overflow-x:hidden;padding:var(--s2) var(--s4) 0;background:var(--surface);
+  min-height:0;overflow-y:auto;overflow-x:hidden;padding:var(--s3) var(--s4) var(--s4);background:var(--surface);
   border-left:3px solid var(--line);display:flex;flex-direction:column;gap:var(--s3);
 }
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s1);padding:var(--s1);background:var(--surface2);border:2px solid var(--line);border-radius:999px;flex:none}
-.step-tab{
-  min-height:48px;border-radius:999px;border:0;background:transparent;color:var(--ink);font-weight:600;font-size:1.05rem;
-  display:flex;align-items:center;justify-content:center;gap:var(--s2);padding:0 var(--s2);
-}
-.step-tab .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--line);font-size:.9rem;flex:none}
-.step-tab[aria-selected="true"]{background:var(--accent);color:#fff;box-shadow:0 4px 12px var(--accent-soft),0 0 0 3px var(--surface);transform:translateY(-1px)}
-.step-tab[aria-selected="true"] .n{background:rgba(255,255,255,.3)}
-.step{display:none;flex-direction:column;gap:var(--s3);flex:none;padding-bottom:var(--s4)}
-.step.on{display:flex}
-.step#step-design{padding-bottom:0;gap:var(--s2)}
-.hint{font-size:.95rem;color:var(--muted);margin:0;font-weight:500}
+.panel>*{flex:none}
+.hint{font-size:.9rem;color:var(--muted);margin:0;font-weight:500}
 
-/* Dress */
+/* Dress: two compact rows of four */
 .dresses{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s2)}
 .chip{
-  position:relative;min-height:132px;border-radius:var(--r);border:3px solid var(--line);background:var(--surface2);color:var(--ink);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--s1);padding:var(--s2) var(--s1);font-size:clamp(.78rem,1.9vw,1rem);font-weight:600;min-width:0;
+  position:relative;min-height:56px;border-radius:var(--r);border:2px solid var(--line);background:var(--surface2);color:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:3px 2px;font-size:.82rem;font-weight:600;min-width:0;white-space:nowrap;
 }
-.chip canvas{width:min(92px,100%);aspect-ratio:1/1;height:auto;display:block}
-.chip[aria-pressed="true"]{border-color:var(--accent);border-width:4px;background:var(--accent-soft);transform:translateY(-3px);box-shadow:0 8px 20px var(--accent-soft)}
+.chip canvas{width:34px;height:34px;display:block}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px var(--accent-soft)}
 .chip[aria-pressed="true"]::after{
-  content:'\2713';position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;
-  display:grid;place-items:center;font-size:.85rem;font-weight:700;
+  content:'\2713';position:absolute;top:2px;right:3px;width:18px;height:18px;border-radius:50%;background:var(--accent);color:#fff;
+  display:grid;place-items:center;font-size:.7rem;font-weight:700;
 }
-.chip[aria-pressed="true"]:active{transform:translateY(-3px) scale(.96)}
 
-/* Design */
-.design-main{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s3);align-items:start}
-.rail{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s1) var(--s2) var(--s1) var(--s1)}
-.tool{
-  width:48px;height:48px;border-radius:var(--r);border:2px solid var(--line);background:var(--surface2);color:var(--ink);font-size:1.5rem;padding:0;
-  display:grid;place-items:center;flex:none;
-}
-.canvas-col{display:flex;justify-content:center;min-width:0}
+/* Canvas row: drawing canvas with the palette beside it */
+.canvas-row{display:flex;gap:var(--s3);justify-content:center;align-items:flex-start;min-width:0}
 .paint-wrap{
-  position:relative;flex:none;width:min(100%,max(240px,calc(100vh - 560px)));width:min(100%,max(240px,calc(100dvh - 560px)));aspect-ratio:1/1;
+  position:relative;flex:none;width:min(calc(100% - 204px),calc(100vh - 340px));width:min(calc(100% - 204px),calc(100dvh - 340px));min-width:200px;aspect-ratio:1/1;
   border-radius:var(--r);overflow:hidden;border:3px solid var(--accent);background:#fff;touch-action:none;box-shadow:var(--shadow);
 }
 .paint-wrap canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;pointer-events:none}
-.optstrip{min-height:72px;display:flex;align-items:center;justify-content:center;padding:var(--s1) var(--s2);min-width:0;background:var(--surface2);border-radius:var(--r);border:2px solid var(--line)}
-.opt{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;justify-content:center}
-.opt{max-width:100%}
-.btn.pat{padding:0;width:48px;overflow:hidden}
-.btn.pat canvas{width:36px;height:36px;border-radius:8px;display:block;pointer-events:none}
-.btn[data-size]{padding:0;width:48px}
-.btn.bk{padding:0;width:48px;font-size:1.25rem}
-.orow{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;justify-content:center;max-width:100%}
-.optlab{font-size:.85rem;font-weight:600;color:var(--muted);min-width:56px;text-align:right}
-.opt[data-opt="size"]{flex-direction:column;flex-wrap:nowrap;gap:var(--s1)}
-.opt.grid{padding:var(--s1) 0}
-.btn.grad{padding:0;width:48px;font-size:1.3rem;border-color:rgba(0,0,0,.14);text-shadow:0 1px 2px rgba(0,0,0,.35)}
-.palette{display:grid;grid-template-columns:repeat(auto-fill,48px);gap:var(--s1);padding:6px 4px;justify-content:space-between;min-width:0}
+.palette{display:grid;grid-template-columns:repeat(4,48px);gap:0;flex:none}
 .sw{
   width:48px;height:48px;border-radius:50%;border:3px solid rgba(0,0,0,.14);padding:0;position:relative;
 }
 .sw[aria-pressed="true"]{border-color:var(--ink);transform:scale(1.08);box-shadow:0 0 0 3px var(--surface),0 0 0 6px var(--accent);z-index:1}
+.palette .sw{border:6px solid transparent;background-clip:padding-box!important;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.palette .sw[aria-pressed="true"]{border-color:transparent;transform:none;z-index:1;outline:3px solid var(--accent);outline-offset:-3px;box-shadow:inset 0 0 0 2px var(--surface),inset 0 0 0 3px var(--ink)}
 .sw.rainbow{background:conic-gradient(#ff3b6b,#ffd400,#8de03a,#14b8a6,#3b6cf6,#d946ef,#ff3b6b)}
-.sw.metal::after{content:'';position:absolute;inset:7px 12px 22px 9px;border-radius:50%;background:rgba(255,255,255,.55);filter:blur(2px);transform:rotate(-30deg)}
-.actions{
-  position:sticky;bottom:0;z-index:3;display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);padding:var(--s1) 0 10px;background:var(--surface);
-}
-.actions .btn{min-height:52px}
-.actions .btn.warn{color:var(--pink-d)}
+.sw.metal::after{content:'';position:absolute;inset:4px 10px 17px 6px;border-radius:50%;background:rgba(255,255,255,.55);filter:blur(2px);transform:rotate(-30deg)}
+.quick-tools{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
+.quick-tools .btn{min-height:56px;font-size:1.1rem}
+.quick-tools .btn.warn{color:var(--pink-d)}
 
-/* Style */
+/* Tabs */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2)}
+.tab{
+  min-height:48px;border-radius:var(--r);border:2px solid var(--line);background:var(--surface2);color:var(--ink);font-weight:600;font-size:1.05rem;cursor:pointer;
+  transition:transform .12s ease,background-color .12s ease;
+}
+.tab:active{transform:scale(.96)}
+.tab[aria-selected="true"]{background:var(--accent);color:#fff;border-color:var(--accent-d)}
+.pane{display:flex;flex-direction:column;gap:var(--s3)}
+.row{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center}
+.row .lbl{font-weight:600;color:var(--muted);font-size:.9rem;min-width:70px}
+.row.grid{gap:var(--s1) var(--s2)}
+.btn.pat{padding:0;width:48px;overflow:hidden}
+.btn.pat canvas{width:36px;height:36px;border-radius:8px;display:block;pointer-events:none}
+.btn.bk{padding:0;width:48px;font-size:1.25rem}
+.btn[data-size]{padding:0;width:48px}
+.btn.grad{padding:0;width:48px;font-size:1.3rem;border-color:rgba(0,0,0,.14);text-shadow:0 1px 2px rgba(0,0,0,.35)}
+
+/* Look */
 .groups{display:flex;flex-direction:column;gap:var(--s2)}
 .group{background:var(--surface2);border:2px solid var(--line);border-radius:var(--r);padding:var(--s2) var(--s3);display:flex;flex-direction:column;gap:var(--s1)}
 .group h3{margin:0;font-size:1rem;font-weight:700;color:var(--ink)}
@@ -235,35 +224,25 @@ main{display:grid;grid-template-columns:55fr 45fr;min-height:0}
   main{grid-template-columns:1fr;grid-template-rows:minmax(0,45%) minmax(0,1fr)}
   .panel{border-left:0;border-top:3px solid var(--line)}
   .app.show main{grid-template-rows:1fr}
-  .design-main{grid-template-columns:1fr}
-  .rail{flex-direction:row;order:2;justify-content:space-between;gap:var(--s1);padding:var(--s2) var(--s1)}
-  .tool{flex:1 1 0;max-width:64px;min-width:48px}
-  .paint-wrap{width:min(100%,max(240px,36dvh))}
-  .chip{min-height:116px}
+  .paint-wrap{width:min(calc(100% - 204px),52dvh)}
 }
-@media (min-width:700px) and (max-aspect-ratio:1/1){
-  /* tablet portrait: canvas + rail on the left, options / colors / undo on the right so nothing needs scrolling */
-  .step#step-design.on{display:grid;grid-template-columns:minmax(0,1fr) 300px;grid-template-rows:auto auto auto 1fr;column-gap:var(--s3);row-gap:var(--s3);align-items:start}
-  .design-main{grid-column:1;grid-row:1/5}
-  .optstrip{grid-column:2;grid-row:1}
-  .palette{grid-column:2;grid-row:2}
-  .actions{grid-column:2;grid-row:3;position:static;padding:0}
-  .paint-wrap{width:min(100%,max(240px,38dvh))}
+@media (max-width: 620px){
+  .canvas-row{flex-direction:column;align-items:center}
+  .paint-wrap{width:min(100%,44dvh);min-width:200px}
+  .palette{grid-template-columns:repeat(auto-fill,48px);justify-content:center;max-width:100%}
+  .chip{font-size:.72rem}
 }
 @media (max-width: 520px){
   header{padding:var(--s2) var(--s4)}
   .runway-btn{font-size:1.2rem;min-height:60px;padding-inline:var(--s5)}
-  .step-tab{font-size:.95rem;gap:var(--s1)}
-  .step-tab .n{width:22px;height:22px;font-size:.8rem}
   .back-btn{font-size:1rem;padding:0 var(--s4)}
   .toast{max-width:calc(100% - 100px)}
-  .paint-wrap{width:min(100%,max(220px,28dvh))}
   main{grid-template-rows:minmax(0,37%) minmax(0,1fr)}
   .app.show main{grid-template-rows:1fr}
 }
 @media (prefers-reduced-motion: reduce){
-  .btn,.tool,.chip,.sw,.step-tab,.round,.iconbtn,.runway-btn,.back-btn{transition:none}
-  .btn:active,.tool:active,.chip:active,.sw:active,.step-tab:active,.round:active,.iconbtn:active,.back-btn:active,.runway-btn:active{transform:none}
+  .btn,.tool,.chip,.sw,.tab,.round,.iconbtn,.runway-btn,.back-btn{transition:none}
+  .btn:active,.tool:active,.chip:active,.sw:active,.tab:active,.round:active,.iconbtn:active,.back-btn:active,.runway-btn:active{transform:none}
   .runway-btn{animation:none}
   .toast{transition:none}
 }
@@ -302,62 +281,52 @@ main{display:grid;grid-template-columns:55fr 45fr;min-height:0}
       <div class="toast" id="toast" role="status"></div>
     </section>
     <section class="panel" id="panel">
-      <div class="steps" role="tablist" aria-label="Steps">
-        <button class="step-tab" role="tab" aria-selected="true" data-step="dress"><span class="n">1</span>Dress</button>
-        <button class="step-tab" role="tab" aria-selected="false" data-step="design"><span class="n">2</span>Design</button>
-        <button class="step-tab" role="tab" aria-selected="false" data-step="style"><span class="n">3</span>Style</button>
-      </div>
-
-      <div class="step on" id="step-dress">
-        <p class="hint">Pick your dress shape</p>
-        <div class="dresses" id="dresses"></div>
-        <button class="btn primary big" data-goto="design">Next: Design ➡</button>
-      </div>
-
-      <div class="step" id="step-design">
-        <div class="design-main">
-          <div class="rail" role="toolbar" aria-label="Tools">
-            <button class="tool" data-tool="brush" aria-pressed="true" aria-label="Brush" title="Brush">✏️</button>
-            <button class="tool" data-tool="rainbow" aria-pressed="false" aria-label="Rainbow" title="Rainbow">🌈</button>
-            <button class="tool" data-tool="glitter" aria-pressed="false" aria-label="Glitter" title="Glitter">✨</button>
-            <button class="tool" data-tool="sticker" aria-pressed="false" aria-label="Sticker" title="Sticker">🦋</button>
-            <button class="tool" data-tool="pattern" aria-pressed="false" aria-label="Pattern" title="Pattern">🔷</button>
-            <button class="tool" data-tool="fill" aria-pressed="false" aria-label="Fill" title="Fill">🪣</button>
-            <button class="tool" data-tool="eraser" aria-pressed="false" aria-label="Eraser" title="Eraser">🧽</button>
-          </div>
-          <div class="canvas-col"><div class="paint-wrap" id="paintWrap"></div></div>
-        </div>
-        <div class="optstrip" id="optstrip">
-          <div class="opt" data-opt="size">
-            <div class="orow"><span class="optlab">Size</span>
-              <button class="btn" data-size="0" aria-pressed="false" aria-label="Small"><span class="dot" style="width:8px;height:8px"></span></button>
-              <button class="btn" data-size="1" aria-pressed="true" aria-label="Medium"><span class="dot" style="width:16px;height:16px"></span></button>
-              <button class="btn" data-size="2" aria-pressed="false" aria-label="Large"><span class="dot" style="width:28px;height:28px"></span></button>
-            </div>
-            <div class="orow brushkind"><span class="optlab">Brush</span>
-              <button class="btn bk" data-brush="pen" aria-pressed="true" aria-label="Pen" title="Pen">✏️</button>
-              <button class="btn bk" data-brush="spray" aria-pressed="false" aria-label="Spray paint" title="Spray">💨</button>
-              <button class="btn bk" data-brush="heart" aria-pressed="false" aria-label="Heart trail" title="Heart trail">💗</button>
-              <button class="btn bk" data-brush="star" aria-pressed="false" aria-label="Star trail" title="Star trail">⭐</button>
-              <button class="btn bk" data-brush="neon" aria-pressed="false" aria-label="Glow marker" title="Glow marker">🔆</button>
-            </div>
-          </div>
-          <div class="opt grid hidden" data-opt="sticker" id="stickerRow"></div>
-          <div class="opt grid hidden" data-opt="pattern" id="patternRow"></div>
-          <div class="opt hidden" data-opt="fill" id="fillRow">
-            <button class="btn primary" id="fillBtn">🪣 Fill dress</button>
-          </div>
-        </div>
+      <div class="dresses" id="dresses"></div>
+      <div class="canvas-row">
+        <div class="paint-wrap" id="paintWrap"></div>
         <div class="palette" id="palette"></div>
-        <div class="actions">
-          <button class="btn big" id="undoBtn">↩️ Undo</button>
-          <button class="btn warn big" id="clearBtn">🗑️ Clear</button>
+      </div>
+      <div class="quick-tools">
+        <button class="btn big" id="undoBtn">↩️ Undo</button>
+        <button class="btn warn big" id="clearBtn">🗑️ Clear</button>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Tools">
+        <button class="tab" role="tab" aria-selected="true" data-tab="paint">🎨 Paint</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="fun">🌟 Fun</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="look">👧 Look</button>
+      </div>
+      <div class="pane" id="pane-paint">
+        <div class="row">
+          <button class="btn" data-tool="brush" aria-pressed="true">✏️ Brush</button>
+          <button class="btn" data-tool="rainbow" aria-pressed="false">🌈 Rainbow</button>
+          <button class="btn" data-tool="glitter" aria-pressed="false">✨ Glitter</button>
+          <button class="btn" data-tool="eraser" aria-pressed="false">🧽 Eraser</button>
+        </div>
+        <div class="row">
+          <span class="lbl">Brush type</span>
+          <button class="btn bk" data-brush="pen" aria-pressed="true" aria-label="Pen" title="Pen">✏️</button>
+          <button class="btn bk" data-brush="spray" aria-pressed="false" aria-label="Spray paint" title="Spray">💨</button>
+          <button class="btn bk" data-brush="heart" aria-pressed="false" aria-label="Heart trail" title="Heart trail">💗</button>
+          <button class="btn bk" data-brush="star" aria-pressed="false" aria-label="Star trail" title="Star trail">⭐</button>
+          <button class="btn bk" data-brush="neon" aria-pressed="false" aria-label="Glow marker" title="Glow marker">🔆</button>
+        </div>
+        <div class="row">
+          <span class="lbl">Brush size</span>
+          <button class="btn" data-size="0" aria-pressed="false" aria-label="Small"><span class="dot" style="width:8px;height:8px"></span></button>
+          <button class="btn" data-size="1" aria-pressed="true" aria-label="Medium"><span class="dot" style="width:16px;height:16px"></span></button>
+          <button class="btn" data-size="2" aria-pressed="false" aria-label="Large"><span class="dot" style="width:28px;height:28px"></span></button>
+        </div>
+        <div class="row" id="fillRow">
+          <button class="btn primary" id="fillBtn">🪣 Fill dress</button>
         </div>
       </div>
-
-      <div class="step" id="step-style">
-        <div class="groups"></div>
+      <div class="pane hidden" id="pane-fun">
+        <p class="hint">Patterns use your chosen color 🎨 (or rainbow!)</p>
+        <div class="row grid" id="patternRow"></div>
+        <p class="hint">Stickers: pick one, then tap the dress</p>
+        <div class="row grid" id="stickerRow"></div>
       </div>
+      <div class="pane hidden" id="pane-look"><div class="groups"></div></div>
     </section>
   </main>
 </div>
@@ -1534,20 +1503,15 @@ $('#fillBtn').addEventListener('click', doFill);
 $('#undoBtn').addEventListener('click', doUndo);
 $('#clearBtn').addEventListener('click', () => { pushUndo(); painter.g.ctx.clearRect(0, 0, N, N); fillSolid(painter.g, '#ffffff'); scheduleSave(); });
 
-/* Steps: 1 Dress, 2 Design, 3 Style */
-const STEPS = { dress: 'Step 1 · Dress 👗', design: 'Step 2 · Design 🎨', style: 'Step 3 · Style 👑' };
-function setStep(name, announce) {
-  if (!STEPS[name]) return;
-  Object.keys(STEPS).forEach(k => $('#step-' + k).classList.toggle('on', k === name));
-  $$('.step-tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.step === name)));
-  $('#panel').scrollTop = 0;
-  if (announce) toast(STEPS[name]);
+/* Tabs: Paint / Fun / Look */
+function setTab(name) {
+  $$('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === name)));
+  $$('.pane').forEach(p => p.classList.toggle('hidden', p.id !== 'pane-' + name));
 }
-$$('.step-tab').forEach(t => t.addEventListener('click', () => setStep(t.dataset.step, true)));
-$$('[data-goto]').forEach(b => b.addEventListener('click', () => setStep(b.dataset.goto, true)));
+$$('.tab').forEach(t => t.addEventListener('click', () => setTab(t.dataset.tab)));
 
 /* Style step: every character option in one scrolling column of labelled groups */
-const lookEl = $('#step-style .groups');
+const lookEl = $('#pane-look .groups');
 function group(label) {
   const g = document.createElement('div'); g.className = 'group';
   const h = document.createElement('h3'); h.textContent = label; g.appendChild(h);
@@ -1575,25 +1539,22 @@ choiceRow('🎀 Hairstyle', STYLES, 'style', k => active().setHairStyle(k));
 choiceRow('✨ Accessories', ACCS.map(a => [a[0], a[1] + ' ' + a[2]]), 'acc', k => active().setAcc(k, !active().cfg.acc[k]));
 swatchRow('👠 Shoe color', SHOES, 'shoe', (c, i) => c.setShoe(i));
 choiceRow('🥾 Shoe style', [['flat', 'Flats'], ['boot', 'Boots']], 'shoes', k => active().setShoeStyle(k));
-const OPT_FOR = { brush: 'size', rainbow: 'size', glitter: 'size', eraser: 'size', sticker: 'sticker', pattern: 'pattern', fill: 'fill' };
 function refreshTools() {
   $$('[data-tool]').forEach(b => b.setAttribute('aria-pressed', String(painter.tool === b.dataset.tool)));
   $$('[data-size]').forEach(b => b.setAttribute('aria-pressed', String(painter.sizeIdx === +b.dataset.size)));
   $$('[data-brush]').forEach(b => b.setAttribute('aria-pressed', String(painter.brush === b.dataset.brush)));
-  $$('.brushkind').forEach(e => e.classList.toggle('hidden', painter.tool !== 'brush'));
   $$('[data-pat]').forEach(b => b.setAttribute('aria-pressed', String(painter.pat === b.dataset.pat)));
   const key = usesRainbow() ? 'rainbow' : painter.metal ? 'metal:' + painter.metal : painter.color;
   $$('.sw[data-col]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.col === key)));
   $$('[data-stk]').forEach(b => b.setAttribute('aria-pressed', String(painter.tool === 'sticker' && painter.sticker === b.dataset.stk)));
-  $$('.opt').forEach(o => o.classList.toggle('hidden', o.dataset.opt !== OPT_FOR[painter.tool]));
 }
 function refreshUI() {
   const c = active();
   $$('#dresses .chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === c.dressId)));
-  $$('#step-style .sw').forEach(b => b.setAttribute('aria-pressed', String(c.cfg[b.dataset.k] === +b.dataset.i)));
-  $$('#step-style [data-style]').forEach(b => b.setAttribute('aria-pressed', String(c.cfg.style === b.dataset.style)));
-  $$('#step-style [data-acc]').forEach(b => b.setAttribute('aria-pressed', String(!!c.cfg.acc[b.dataset.acc])));
-  $$('#step-style [data-shoes]').forEach(b => b.setAttribute('aria-pressed', String(c.cfg.shoeStyle === b.dataset.shoes)));
+  $$('#pane-look .sw').forEach(b => b.setAttribute('aria-pressed', String(c.cfg[b.dataset.k] === +b.dataset.i)));
+  $$('#pane-look [data-style]').forEach(b => b.setAttribute('aria-pressed', String(c.cfg.style === b.dataset.style)));
+  $$('#pane-look [data-acc]').forEach(b => b.setAttribute('aria-pressed', String(!!c.cfg.acc[b.dataset.acc])));
+  $$('#pane-look [data-shoes]').forEach(b => b.setAttribute('aria-pressed', String(c.cfg.shoeStyle === b.dataset.shoes)));
   mountGarment(c.getGarment());
   refreshTools();
 }
