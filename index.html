@@ -473,9 +473,9 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
 <div class="overlay hidden" id="photoOverlay" role="dialog" aria-label="Photo">
   <div class="card">
     <img id="photoImg" alt="Your fashion photo">
-    <p class="photo-note">On iPad: press and hold the picture to save it</p>
+    <p class="photo-note" id="photoNote">Tap 💾 Save, or press and hold the picture</p>
     <div class="row">
-      <a class="btn primary" id="photoSave" hidden download="fashion-photo.png">💾 Save</a>
+      <button class="btn primary" id="photoSave">💾 Save</button>
       <button class="btn" id="photoClose">Close</button>
     </div>
   </div>
@@ -679,6 +679,7 @@ function rebuildBackgrounds() {
 const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 if (mq && mq.addEventListener) mq.addEventListener('change', () => rebuildBackgrounds());
 
+const FACE_FILL = .6;
 const hemi = new THREE.HemisphereLight(0xffffff, 0xffc4e4, .9); scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xffffff, 1.5);
 sun.position.set(2.2, 4, 3); sun.castShadow = true;
@@ -1633,6 +1634,9 @@ try {
   if (savedState && ['pop', 'dream', 'dance', 'kpop', 'ninja'].includes(savedState.music)) musicId = savedState.music;
 } catch (e) { /* keep defaults */ }
 const chars = DESIGNERS.map((d, i) => new Character(i, d.cfg));
+// soft light just in front of her face: the show spotlights come from high above and
+// otherwise leave the lower face in shadow (looked like a beard). Off in the studio.
+const faceFill = new THREE.PointLight(0xfff2ec, 0, 1.3, 2); faceFill.position.set(0, -.05, .55); chars[0].head.add(faceFill);
 chars.forEach((c, i) => { c.group.visible = false; scene.add(c.group); });
 const cur = 0;
 let muted = !!(savedState && savedState.muted);
@@ -2589,10 +2593,34 @@ function takePhoto() {
   g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `600 ${Math.round(cap * .5)}px Fredoka, system-ui, sans-serif`;
   g.fillText(designerName ? `✨ Fashion Studio Runway · Designer: ${designerName} ✨` : '✨ Fashion Studio Runway ✨', out.width / 2, src.height + b + cap * .5, out.width * .94);
   let url = ''; try { url = out.toDataURL('image/png'); } catch (e) { url = src.toDataURL('image/png'); }
-  $('#photoImg').src = url; const a = $('#photoSave'); a.href = url; a.download = 'fashion-photo.png';
+  $('#photoImg').src = url; photoURL = url;
   setTimeout(() => $('#photoOverlay').classList.remove('hidden'), 280);
 }
 $('#photoBtn').addEventListener('click', takePhoto);
+let photoURL = '';
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+$('#photoNote').textContent = IS_IOS ? 'Tap 💾 Save, then "Save Image". Or press and hold the picture.' : 'Click 💾 Save to download your photo';
+function photoName() {
+  const d = new Date(), z = n => String(n).padStart(2, '0');
+  return `fashion-photo-${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}-${z(d.getHours())}${z(d.getMinutes())}${z(d.getSeconds())}.png`;
+}
+function downloadPhoto(blob, name) {
+  const u = URL.createObjectURL(blob); const a = document.createElement('a');
+  a.href = u; a.download = name; a.rel = 'noopener'; document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(u), 4000); toast('Photo saved! 💾');
+}
+$('#photoSave').addEventListener('click', async () => {
+  if (!photoURL) return;
+  let blob; try { blob = await (await fetch(photoURL)).blob(); } catch (e) { toast('Press and hold the picture to save it'); return; }
+  const name = photoName();
+  if (IS_IOS && navigator.canShare) { // iPad / iPhone: the share sheet has "Save Image" (goes to Photos)
+    try {
+      const file = new File([blob], name, { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+    } catch (e) { if (e && e.name === 'AbortError') return; }
+  }
+  try { downloadPhoto(blob, name); } catch (e) { toast('Press and hold the picture to save it'); }
+});
 
 /* ============================================================================
    My Closet: save the whole outfit (dress + painting + look) and wear it again.
@@ -2740,6 +2768,7 @@ function stepWorld(dt) {
   hemi.intensity = lerp(hemi.intensity, S ? (.32 + show.flashBoost * .45) * TL : .9, k);
   sun.intensity = lerp(sun.intensity, S ? .9 * TL : 1.5, k); rim.intensity = lerp(rim.intensity, S ? .9 * TL : .6, k);
   spots.forEach(s => s.intensity = lerp(s.intensity, S ? 140 * TL : 0, k));
+  faceFill.intensity = lerp(faceFill.intensity, S ? FACE_FILL : 0, k);
   spotCones.forEach(m => m.visible = S);
   c.update(dt, phase);
   // camera
