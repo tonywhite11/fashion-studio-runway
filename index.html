@@ -252,6 +252,9 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
 
 /* flash FX */
 .fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetti{position:absolute;top:-4%;width:10px;height:16px;border-radius:2px;pointer-events:none;animation:conf 2.8s cubic-bezier(.25,.6,.4,1) forwards}
+@keyframes conf{0%{transform:translate3d(0,0,0) rotate(0)}100%{transform:translate3d(var(--dx),115vh,0) rotate(var(--rot));opacity:.9}}
+@media (prefers-reduced-motion: reduce){.confetti{display:none}}
 .burst{
   position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;
   background:radial-gradient(circle,#fff 0 10%,rgba(255,255,255,.75) 24%,rgba(255,240,200,.2) 45%,transparent 66%);
@@ -424,7 +427,7 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
         <button class="round" id="frontBtn" aria-label="Front view" title="Front view">🔄</button>
         <button class="round" id="closetBtn" aria-label="My closet: save and wear outfits" title="My closet">👗</button>
       </div>
-      <div class="stage-ui" id="stageUi"><button class="runway-btn" id="runwayBtn">✨ Runway Show!</button></div>
+      <div class="stage-ui" id="stageUi"><button class="runway-btn" id="runwayBtn">✨ Runway Show!</button><button class="runway-btn hidden" id="encoreBtn">🔁 Encore!</button></div>
       <div class="show-ctl"><button class="round" id="ctlBtn" aria-label="Stage and music" aria-expanded="false" title="Stage &amp; music">🎭</button></div>
       <div class="show-pop hidden" id="ctlPop" role="dialog" aria-label="Stage and music">
         <div><h4>🎨 Stage</h4><div class="prow" id="themeRow"></div></div>
@@ -574,6 +577,7 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
       <section class="help-sec"><h3>✨ Runway Show!</h3><ul>
         <li><span class="ic">✨</span><span>Tap <b>Runway Show!</b> and your model walks the runway and strikes a pose!</span></li>
         <li><span class="ic">🎭</span><span>Pick the <b>stage</b> (like Tihar Lights or Idol Concert) and the <b>music</b>.</span></li>
+        <li><span class="ic">👏</span><span>After 3 walks she takes a bow! Tap <b>🔁 Encore!</b> to watch the show again.</span></li>
         <li><span class="ic">⬅️</span><span><b>Back to Studio</b> takes you back to designing.</span></li>
         <li><span class="ic">👯</span><span>In 🎭, <b>Walk with a friend</b> picks an outfit (like your sister's!) to walk the runway next to you.</span></li>
         <li><span class="ic">🎙️</span><span>The <b>Announcer</b> tells everyone about your outfit while you walk. Switch it On or Off in 🎭. It needs the internet to look at your outfit.</span></li>
@@ -1819,6 +1823,7 @@ class Character {
     this.hips.rotation.set(0, hy, Math.sin(phase) * .045 * w + sway * .02 * idle + .07 * pw);
     this.hips.position.set(Math.sin(phase) * .014 * w, .52 - .09 * A * Math.abs(Math.sin(phase)) - .004 * br * idle, 0);
     this.spine.rotation.set(.02 * pw, -hy * .9 + .16 * pw, -Math.sin(phase) * .03 * w - this.hips.rotation.z * .6);
+    if (this.bowK) { this.spine.rotation.x += this.bowK * .72; this.hips.rotation.x += this.bowK * .12; } // finale bow
     // legs
     const off = .07 - .033 * w;
     const th = this.thighs, kn = this.knees;
@@ -2962,6 +2967,17 @@ const audio = (() => {
     duck(on) { duckK = on ? .3 : 1; if (master) master.gain.setTargetAtTime(muted ? 0 : .55 * duckK, ctx.currentTime, .12); },
     get ctx() { return ctx; }, get duckK() { return duckK; }, get masterGain() { return master ? master.gain.value : null; },
     voice() { if (!init()) return null; if (!vgain) { vgain = ctx.createGain(); vgain.connect(ctx.destination); } vgain.gain.value = muted ? 0 : 1; return vgain; },
+    applause(dur = 3.2) { // crowd clapping: many short band-passed noise claps that swell and fade
+      if (!init() || !noise || muted) return;
+      const out = this.voice(), t0 = ctx.currentTime + .02;
+      for (let i = 0; i < Math.round(dur * 38); i++) {
+        const t = t0 + Math.random() * dur, env = Math.sin(Math.PI * Math.min(1, (t - t0) / dur)) * .9 + .1;
+        const src = ctx.createBufferSource(); src.buffer = noise;
+        const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900 + Math.random() * 1700; bp.Q.value = 1.2;
+        const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.16 * env, t + .004); g.gain.exponentialRampToValueAtTime(.001, t + .07 + Math.random() * .05);
+        src.connect(bp); bp.connect(g); g.connect(out); src.start(t, Math.random() * .8, .14);
+      }
+    },
     get on() { return playing; }, get bpm() { return bpm; }, get track() { return track; }
   };
 })();
@@ -2972,7 +2988,8 @@ muteBtn.addEventListener('click', () => { muted = !muted; audio.setMuted(muted);
 /* ============================================================================
    Runway show
    ============================================================================ */
-const show = { on: false, poseId: 0, nextPose: 0, state: 'walkIn', t: 0, z: -5, yaw: 0, phase: 0, flashes: 0, y0: 0, camMode: 'orbit', saved: null, flashBoost: 0, camT: 0, bpmT: 0, duo: false, dx: 0, dz: 0, rmax: 0, partner: null, pyaw: 0, py0: 0 };
+const SHOW_LAPS = 3; // walks before the finale (about 50 s)
+const show = { on: false, laps: 0, poseId: 0, nextPose: 0, state: 'walkIn', t: 0, z: -5, yaw: 0, phase: 0, flashes: 0, y0: 0, camMode: 'orbit', saved: null, flashBoost: 0, camT: 0, bpmT: 0, duo: false, dx: 0, dz: 0, rmax: 0, partner: null, pyaw: 0, py0: 0 };
 const appEl = $('#app'); const fx = $('#fx');
 function burst(n = 4) {
   for (let i = 0; i < n; i++) {
@@ -2982,6 +2999,22 @@ function burst(n = 4) {
     }, i * 70);
   }
   show.flashBoost = 1; wflash();
+}
+function confetti(n = 90) {
+  const cols = ['#ff5fa2', '#ffd23f', '#38e8ff', '#9d78ff', '#7ee08a', '#ff9a3d', '#ffffff'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div'); c.className = 'confetti';
+    c.style.left = (Math.random() * 100) + '%'; c.style.background = cols[i % cols.length];
+    c.style.setProperty('--dx', ((Math.random() - .5) * 160) + 'px'); c.style.setProperty('--rot', ((Math.random() - .5) * 1440) + 'deg');
+    c.style.animationDelay = (Math.random() * .9) + 's'; c.style.width = (7 + Math.random() * 6) + 'px';
+    fx.appendChild(c); setTimeout(() => c.remove(), 4200);
+  }
+}
+function setBow(k) { active().bowK = k; if (show.duo && show.partner) show.partner.bowK = k; }
+function encore() { // replay the show from the top: same stage, music, partner; no new announcement
+  if (!show.on) return;
+  $('#encoreBtn').classList.add('hidden'); setBow(0);
+  show.state = 'walkIn'; show.t = 0; show.z = -5; show.yaw = 0; show.pyaw = 0; show.laps = 0;
 }
 function wflash() { const w = $('#wflash'); w.classList.remove('go'); void w.offsetWidth; w.classList.add('go'); }
 function showCamPos() {
@@ -2995,13 +3028,13 @@ function startShow() {
   $('#runwayBtn').classList.add('hidden'); $('#exitWrap').classList.remove('hidden');
   show.saved = { pos: camera.position.clone(), target: controls.target.clone() };
   show.camMode = 'show'; controls.enabled = false;
-  show.state = 'walkIn'; show.t = 0; show.z = -5; show.yaw = 0; show.phase = 0; enterDuo(); show.nextPose = show.duo ? POSES.length - 1 : Math.floor(Math.random() * (POSES.length - 1)); // duo shows open with Best friends
+  show.state = 'walkIn'; show.t = 0; show.z = -5; show.yaw = 0; show.phase = 0; show.laps = 0; setBow(0); $('#encoreBtn').classList.add('hidden'); enterDuo(); show.nextPose = show.duo ? POSES.length - 1 : Math.floor(Math.random() * (POSES.length - 1)); // duo shows open with Best friends
   stage.visible = true; pedestal.visible = false; scene.background = bgShow; applyLights(); closeCtl();
   audio.start(); audio.setMuted(muted);
   requestAnimationFrame(resize);
 }
 function stopShow() {
-  if (!show.on) return; show.on = false; appEl.classList.remove('show'); audio.stop();
+  if (!show.on) return; show.on = false; appEl.classList.remove('show'); audio.stop(); setBow(0); $('#encoreBtn').classList.add('hidden');
   stopAnnouncer(); leaveDuo();
   $('#runwayBtn').classList.remove('hidden'); $('#exitWrap').classList.add('hidden');
   stage.visible = false; pedestal.visible = true; scene.background = bgDesign; applyLights(); closeCtl();
@@ -3012,6 +3045,7 @@ function stopShow() {
 }
 $('#runwayBtn').addEventListener('click', onRunwayTap);
 $('#exitBtn').addEventListener('click', stopShow);
+$('#encoreBtn').addEventListener('click', encore);
 $('#frontBtn').addEventListener('click', () => {
   if (show.on) return; show.camMode = 'return'; show.saved = { pos: new THREE.Vector3(0, 1.05, 3.5), target: new THREE.Vector3(0, .72, 0) }; controls.enabled = false;
 });
@@ -3024,7 +3058,7 @@ function updateShow(dt) {
   switch (show.state) {
     case 'walkIn':
       show.wTarget = 1; show.pTarget = 0; show.yaw = 0; show.z += SPEED * dt * c.walkAmt; moving = 1;
-      if (show.z >= 2.4) { show.z = 2.4; show.state = 'pose'; show.t = 0; show.fl = [0, 0, 0]; show.poseId = show.nextPose; show.nextPose = (show.nextPose + 1) % nP; c.poseId = show.poseId; toast(POSES[show.poseId].label); burst(4); }
+      if (show.z >= 2.4) { show.z = 2.4; show.state = 'pose'; show.t = 0; show.laps++; show.fl = [0, 0, 0]; show.poseId = show.nextPose; show.nextPose = (show.nextPose + 1) % nP; c.poseId = show.poseId; toast(POSES[show.poseId].label); burst(4); }
       break;
     case 'pose':
       show.wTarget = 0; show.pTarget = 1;
@@ -3033,7 +3067,22 @@ function updateShow(dt) {
       else { show.yaw = Math.sin(show.t * 1.5) * .28 * Math.min(1, show.t); show.pyaw = -show.yaw; } // partner mirrors the sway
       if (show.t > 1.2 && !show.fl[1]) { show.fl[1] = 1; burst(5); }
       if (show.t > 2.5 && !show.fl[2]) { show.fl[2] = 1; burst(4); }
-      if (show.t > 3.4) { show.state = 'turn'; show.t = 0; show.y0 = show.yaw % TAU; show.py0 = show.pyaw % TAU; }
+      if (show.t > 3.4) {
+        show.y0 = show.yaw % TAU; show.py0 = show.pyaw % TAU; show.t = 0;
+        show.state = show.laps >= SHOW_LAPS ? 'finale' : 'turn';
+      }
+      break;
+    case 'finale': { // face the audience, bow, confetti + applause, then offer Encore
+      show.wTarget = 0; show.pTarget = 0;
+      const f = ease(clamp(show.t / .6, 0, 1)); show.yaw = show.y0 * (1 - f); show.pyaw = show.py0 * (1 - f);
+      const b = show.t < .7 ? 0 : show.t < 1.6 ? ease((show.t - .7) / .9) : show.t < 2.4 ? 1 : 1 - ease(clamp((show.t - 2.4) / .8, 0, 1));
+      setBow(b);
+      if (show.t > .8 && !show.fin) { show.fin = 1; confetti(); audio.applause(); toast('👏 Bravo!'); burst(5); }
+      if (show.t > 3.3) { show.state = 'done'; show.t = 0; show.fin = 0; setBow(0); $('#encoreBtn').classList.remove('hidden'); }
+      break;
+    }
+    case 'done': // gentle idle at the front until Encore or Back to Studio
+      show.wTarget = 0; show.pTarget = 0; show.yaw = Math.sin(show.t * .8) * .12; show.pyaw = -show.yaw;
       break;
     case 'turn':
       show.wTarget = .35; show.pTarget = 0; show.yaw = show.y0 + (Math.PI - show.y0) * ease(clamp(show.t / 1.0, 0, 1)); show.pyaw = show.py0 + (Math.PI - show.py0) * ease(clamp(show.t / 1.0, 0, 1));
@@ -3048,7 +3097,7 @@ function updateShow(dt) {
       if (show.t >= 1.0) { show.state = 'walkIn'; show.t = 0; show.yaw = 0; }
       break;
   }
-  if (show.state !== 'pose' && show.state !== 'turn') show.pyaw = show.yaw;
+  if (show.state !== 'pose' && show.state !== 'turn' && show.state !== 'finale' && show.state !== 'done') show.pyaw = show.yaw;
   const cyc = 1.55 * (show.state === 'turn' || show.state === 'turnBack' ? .6 : 1);
   show.phase += dt * Math.PI * 2 * cyc * Math.max(.2, c.walkAmt);
   c.root.position.set(show.duo ? -show.dx : 0, 0, show.z + show.dz / 2); c.root.rotation.y = show.yaw;
