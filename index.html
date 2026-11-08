@@ -2259,16 +2259,37 @@ function defaultDesign(g) {
     c.restore();
   }
 }
+/* Dress auto-saves live in IndexedDB (lots of room). localStorage (~5 MB on iPad) filled up after a
+   few heavily decorated dresses, so it is now only a fallback; old saves there are moved over on load. */
+const designDB = (() => {
+  let p = null;
+  const open = () => p || (p = new Promise((res, rej) => {
+    try { const r = indexedDB.open('fsr-designs', 1); r.onupgradeneeded = () => r.result.createObjectStore('d'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); }
+  }).catch(e => { p = null; throw e; }));
+  const req = (mode, fn) => open().then(db => new Promise((res, rej) => {
+    const t = db.transaction('d', mode); const q = fn(t.objectStore('d'));
+    t.oncomplete = () => res(q && q.result); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+  }));
+  return { get: k => req('readonly', st => st.get(k)), put: (k, v) => req('readwrite', st => st.put(v, k)) };
+})();
+let saveWarned = false;
+function saveDesign(key, data) { // data = { bg, deco }
+  return designDB.put(key, data).then(() => { try { localStorage.removeItem(key); } catch (e) { } })
+    .catch(() => { if (!store.set(key, JSON.stringify(data)) && !saveWarned) { saveWarned = true; toast('No more room to save drawings on this device'); } });
+}
 const readyGarments = new WeakSet();
 function ensureGarment(g) {
   if (readyGarments.has(g)) return; readyGarments.add(g);
   defaultDesign(g); g.touch();
-  let data = null; try { data = JSON.parse(store.get(designKey(g)) || 'null'); } catch (e) { }
-  if (data && data.deco) {
+  const key = designKey(g), gen = g.gen || 0; // gen changes when she edits: never overwrite newer work
+  let legacy = null; try { legacy = JSON.parse(store.get(key) || 'null'); } catch (e) { }
+  const apply = data => {
+    if (!data || !data.deco || (g.gen || 0) !== gen) return;
     const img = new Image();
-    img.onload = () => { try { if (data.bg) { g.bgSpec = data.bg; paintBg(g); } g.ctx.clearRect(0, 0, N, N); g.ctx.drawImage(img, 0, 0, N, N); g.touch(); } catch (e) { } };
+    img.onload = () => { if ((g.gen || 0) !== gen) return; try { if (data.bg) { g.bgSpec = data.bg; paintBg(g); } g.ctx.clearRect(0, 0, N, N); g.ctx.drawImage(img, 0, 0, N, N); g.touch(); } catch (e) { } };
     img.src = data.deco;
-  }
+  };
+  designDB.get(key).then(d => { if (d) apply(d); else if (legacy && (g.gen || 0) === gen) { apply(legacy); saveDesign(key, legacy); } }).catch(() => apply(legacy));
 }
 
 /* painter ui plumbing */
@@ -2283,13 +2304,14 @@ function drawOverlay(g) {
   o.setLineDash([]); o.lineWidth = 2; o.strokeStyle = 'rgba(255,95,162,.9)'; o.stroke(g.exact);
 }
 function mountGarment(g) {
+  if (painter.saveG && painter.saveG !== g) flushSave();
   ensureGarment(g);
   painter.g = g; painter.undo = []; painter.lastStk = null; updateUndoBtn(); refreshStk();
   drawOverlay(g);
   wrap.replaceChildren(g.canvas, overlay);
 }
 function pushUndo() {
-  const g = painter.g; if (!g) return null; let ent = null; painter.lastStk = null;
+  const g = painter.g; if (!g) return null; let ent = null; painter.lastStk = null; g.gen = (g.gen || 0) + 1;
   try { ent = { img: g.ctx.getImageData(0, 0, N, N), bg: g.bgSpec }; painter.undo.push(ent); if (painter.undo.length > 15) painter.undo.shift(); } catch (e) { }
   updateUndoBtn(); refreshStk(); return ent;
 }
@@ -2312,10 +2334,20 @@ function doUndo() {
   g.ctx.putImageData(s.img, 0, 0); g.bgSpec = s.bg; paintBg(g); g.touch(); scheduleSave(); updateUndoBtn(); painter.lastStk = null; refreshStk();
 }
 function updateUndoBtn() { const b = $('#undoBtn'); if (b) b.style.opacity = painter.undo.length ? 1 : .5; }
+// Saves wait 700 ms after the last change, but a pending save is never dropped: it is written
+// right away when she switches dress, wears a closet outfit, or the app goes to the background.
 function scheduleSave() {
-  clearTimeout(painter.saveT); const g = painter.g;
-  painter.saveT = setTimeout(() => { if (!g) return; try { store.set(designKey(g), JSON.stringify({ bg: g.bgSpec, deco: g.dc.toDataURL('image/png') })); } catch (e) { } }, 700);
+  const g = painter.g; if (!g) return;
+  if (painter.saveG && painter.saveG !== g) flushSave();
+  clearTimeout(painter.saveT); painter.saveG = g;
+  painter.saveT = setTimeout(flushSave, 700);
 }
+function flushSave() {
+  clearTimeout(painter.saveT); const g = painter.saveG; painter.saveG = null; if (!g) return;
+  try { saveDesign(designKey(g), { bg: g.bgSpec, deco: g.dc.toDataURL('image/png') }); } catch (e) { }
+}
+document.addEventListener('visibilitychange', () => { if (document.hidden) flushSave(); });
+window.addEventListener('pagehide', flushSave);
 function rainbowColor() { return `hsl(${painter.hue % 360},95%,58%)`; }
 function toCanvas(e) {
   const r = wrap.getBoundingClientRect();
@@ -3056,9 +3088,9 @@ const closet = (() => {
     if (c.acc && typeof c.acc === 'object') ACC_KEYS.forEach(k => ch.setAcc(k, !!c.acc[k]));
     if (EXPR_BY_ID[c.expr]) ch.setExpression(c.expr);
     if (DRESSES.some(x => x.id === c.dress)) ch.setOutfit(c.dress);
-    clearTimeout(painter.saveT);
+    flushSave(); // finish saving whatever she was drawing before the outfit replaces it
     const g = ch.getGarment(), dsg = o.design;
-    if (dsg && dsg.deco) store.set(designKey(g), JSON.stringify(dsg)); // a first-time load of this dress picks up the outfit, not the old drawing
+    if (dsg && dsg.deco) saveDesign(designKey(g), dsg); // saved right away; pushUndo below also stops an older auto-save from loading over it
     saveState(); refreshUI(); // mounts the dress on the canvas (fresh undo list)
     if (dsg && dsg.deco) {
       pushUndo(); // Undo brings back the drawing that was on this dress before
