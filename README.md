@@ -11,13 +11,19 @@ On iPad, open it in Safari, then Share → **Add to Home Screen** for a full-scr
 - Fun: 21 patterns (Dhaka, Rhododendron, Lotus, Himalaya and more), 46 stickers including a Nepal flag, sticker resize
 - Look: skin, eyes, hair color, 13 hairstyles, 6 expressions, 21 accessories, shoes
 - 👗 My Closet: save whole outfits and wear them again
+  - 📤 Share an outfit as a code (lasts 30 days); 📥 Get an outfit with your sister's code
 - 📸 Photo with a Save button
 - ❓ How to Play screen (opens by itself the first time)
-- Runway: 8 stages (including Tihar Lights), 6 music tracks, 8 poses
+- Runway: 8 stages (including Tihar Lights), 6 music tracks, 9 poses
+  - Up, down and up the runway, then a bow with confetti, applause and 🔁 Encore
+  - 👯 Walk with a friend: two models side by side, wearing a closet outfit
+  - 🎙️ Announcer: Claude looks at the outfit(s) and writes a short, witty introduction; ElevenLabs reads it aloud
 
 ## Saving
-Everything saves automatically in the browser on each device (no accounts, nothing uploaded).
+Everything saves automatically in the browser on each device (no accounts). Shared outfits and announcer
+requests go to the small backend below; nothing else is uploaded.
 Clearing the browser's website data erases saved drawings and outfits.
 
 ## Tech
-A single `index.html` using three.js (loaded from a CDN). Deploy = push to `main` (GitHub Pages).
+- Game: a single `index.html` using three.js (loaded from a CDN). Deploy = push to `main` (GitHub Pages).
+- Backend: `worker/` is a Cloudflare Worker (share codes in KV, Claude + ElevenLabs announcer). See `worker/README.md`.
