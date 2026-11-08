@@ -123,7 +123,9 @@ main{display:grid;grid-template-columns:52fr 48fr;min-height:0}
 .hint{font-size:.9rem;color:var(--muted);margin:0;font-weight:500}
 
 /* Dress: two compact rows of four */
-.dresses{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.dresses{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.chip .lf{display:none}
+@media (max-aspect-ratio: 1/1) and (min-width: 700px), (min-width: 1500px){.chip .lf{display:inline}.chip .ls{display:none}}
 .chip{
   position:relative;min-height:54px;border-radius:var(--r);border:2px solid var(--line);background:var(--surface2);color:var(--ink);
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:3px 1px;font-size:.74rem;font-weight:600;min-width:0;white-space:nowrap;
@@ -293,6 +295,8 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
   .paint-wrap{width:min(calc(100% - 148px),calc(60vh - 282px));width:min(calc(100% - 148px),calc(60dvh - 282px))}
 }
 @media (max-width: 620px){
+  .dresses{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .chip .lf{display:none !important}.chip .ls{display:inline !important}
   .panel{padding-left:12px}
   .canvas-row{gap:10px}
   .palette-col{width:92px}
@@ -564,7 +568,7 @@ const GRADS = [
   { id: 'candy', e: '🍭', name: 'Cotton candy', stops: ['#ffc2e7', '#d9c3ff', '#a8e6ff'] },
   { id: 'mint', e: '🍃', name: 'Mint', stops: ['#d4ffe9', '#7fe8c1', '#2fbf9b'] }
 ];
-const STICKERS_ALL = ['🎤', '🎧', '✨', '🌀', '🔥', '⚡', '🐯', '🦊', '🍜', '🥟', '🏮', '📜', '🪭', '🌙', '💜', '🗡️', '⭐', '💖', '🌸', '🦋', '👑', '🌈', '🎀', '🍓', '☀️', '💎', '🍭', '🐱', '🦄', '🌼', '🍒', '🎵', '💫', '🫧', '🌺', '🐬', '🍦', '🧁'];
+const STICKERS_ALL = ['🎤', '🎧', '✨', '🌀', '🔥', '⚡', '🐯', '🦊', '🍜', '🥟', '🏮', '📜', '🪭', '🌙', '💜', '🗡️', '⭐', '💖', '🌸', '🦋', '👑', '🌈', '🎀', '🍓', '☀️', '💎', '🍭', '🐱', '🦄', '🌼', '🍒', '🎵', '💫', '🫧', '🌺', '🐬', '🍦', '🧁', '🪁', '🪔', '🏵️', '🏔️', '🐘', '🐕', '🐄'];
 // drop any emoji this device cannot draw in colour (e.g. a very new one on an old iPad)
 function emojiOK(ch) {
   try {
@@ -583,9 +587,12 @@ function emojiOK(ch) {
   } catch (err) { return true; }
 }
 const STICKERS = STICKERS_ALL.filter(emojiOK);
-const STYLES = [['pony', 'Ponytail'], ['bun', 'Bun'], ['pig', 'Pigtails'], ['long', 'Long'], ['curly', 'Puffs'], ['braid', 'Braid'], ['hpony', 'High ponytail'], ['sbuns', 'Space buns'], ['twin', 'Twin tails'], ['lbraid', 'Long braid'], ['spiky', 'Short spiky']];
+STICKERS.push('NPFLAG'); // custom-drawn Nepal flag (flag emoji do not render on Windows)
+const stickerLabel = k => k === 'NPFLAG' ? 'Nepal flag' : k;
+const STYLES = [['pony', 'Ponytail'], ['bun', 'Bun'], ['pig', 'Pigtails'], ['long', 'Long'], ['curly', 'Puffs'], ['braid', 'Braid'], ['hpony', 'High ponytail'], ['sbuns', 'Space buns'], ['twin', 'Twin tails'], ['lbraid', 'Long braid'], ['spiky', 'Short spiky'], ['chulthi', 'Chulthi braid'], ['ribbons', 'Ribbon plaits']];
 const ACCS = [['crown', '👑', 'Tiara'], ['flower', '🌸', 'Flowers'], ['bow', '🎀', 'Bow'], ['band', '💜', 'Headband'], ['glasses', '🕶️', 'Shades'], ['necklace', '📿', 'Pearls'], ['bag', '👜', 'Bag'], ['wings', '🧚', 'Wings'],
-  ['ninjaband', '🥷', 'Ninja headband'], ['headset', '🎧', 'Idol headset mic'], ['starears', '⭐', 'Star earrings'], ['norigae', '🪢', 'Tassel charm'], ['tigerears', '🐯', 'Tiger ears'], ['foxears', '🦊', 'Fox ears'], ['cheek', '💫', 'Face paint'], ['visor', '😎', 'Cool visor']];
+  ['ninjaband', '🥷', 'Ninja headband'], ['headset', '🎧', 'Idol headset mic'], ['starears', '⭐', 'Star earrings'], ['norigae', '🪢', 'Tassel charm'], ['tigerears', '🐯', 'Tiger ears'], ['foxears', '🦊', 'Fox ears'], ['cheek', '💫', 'Face paint'], ['visor', '😎', 'Cool visor'],
+  ['tika', '🔴', 'Tika'], ['bangles', '⭕', 'Bangles'], ['jhumka', '🔔', 'Jhumka earrings'], ['marigold', '🏵️', 'Marigold mala'], ['gurans', '🌺', 'Lali gurans']];
 const ACC_KEYS = ACCS.map(a => a[0]);
 const EXPRS = [
   { id: 'happy', e: '😊', label: 'Happy', eye: [1, 1], ex: 1, arc: [0, 0], by: [.066, .066], bt: [.1, -.1], mouth: 'smile' },
@@ -612,7 +619,10 @@ const DRESSES = [
   { id: 'tiers', name: 'Tiers', pts: [[.118, .31], [.108, .22], [.14, .12], [.215, -.05], [.2, -.075], [.225, -.09], [.3, -.26], [.275, -.285], [.295, -.3], [.37, -.47]], walk: .8, spread: .38, n: 60, tint: ['#fde68a', '#38bdf8'] },
   { id: 'hanbok', name: 'Hanbok', pts: [[.118, .31], [.109, .25], [.109, .2], [.15, .15], [.23, .0], [.33, -.2], [.44, -.45]], walk: .8, spread: .42, tint: ['#a855f7', '#f5d0fe'] },
   { id: 'idol', name: 'Idol', pts: [[.118, .31], [.108, .22], [.115, .12], [.135, .07], [.25, -.02], [.3, -.1]], walk: .95, spread: .28, pleats: 44, pleatTop: .08, n: 44, tint: ['#ff2d95', '#6d28d9'] },
-  { id: 'ninja', name: 'Ninja', pts: [[.118, .31], [.108, .22], [.122, .1], [.142, -.01], [.15, -.09]], walk: 1, spread: .12, sway: .4, leggings: true, stance: 1, tint: ['#ff8a1a', '#1b1325'] }
+  { id: 'ninja', name: 'Ninja', pts: [[.118, .31], [.108, .22], [.122, .1], [.142, -.01], [.15, -.09]], walk: 1, spread: .12, sway: .4, leggings: true, stance: 1, tint: ['#ff8a1a', '#1b1325'] },
+  { id: 'kurta', name: 'Kurta Suruwal', short: 'Kurta', pts: [[.118, .31], [.108, .22], [.122, .1], [.142, -.02], [.172, -.13], [.2, -.22]], walk: .8, spread: .24, sway: .8, stance: .6, leggings: true, legCol: '#fff1dc', tint: ['#2bbfae', '#f9a8c9'] },
+  { id: 'gunyu', name: 'Gunyu Cholo', short: 'Gunyu', pts: [[.118, .31], [.108, .22], [.109, .14], [.15, .08], [.23, -.12], [.31, -.33], [.36, -.46]], walk: .75, spread: .34, tint: ['#b3122e', '#f4b400'] },
+  { id: 'patasi', name: 'Haku Patasi', short: 'Patasi', pts: [[.118, .31], [.108, .22], [.125, .1], [.15, -.05], [.19, -.25], [.225, -.45]], walk: .6, spread: .22, sway: .7, stance: .5, tint: ['#1a1520', '#c8102e'] }
 ];
 function profileOf(def) {
   const c = new THREE.SplineCurve(def.pts.map(p => new THREE.Vector2(p[0], p[1])));
@@ -728,7 +738,8 @@ const THEMES = {
   winter: { coneOp: 0, lum: .42, short: 'Snow', e: '❄️', bgTop: '#4f78c8', bgBot: '#cfe3ff', run: '#9fbfe6', runR: .08, runM: .1, stripe: '#9fd0ff', floor: '#b9cde6', lightA: ['#bfe3ff', '#ffffff'], lightB: ['#ff8fb8', '#ffe58a'], curt: null, arch: '#e8f4ff', hemi: [0xe8f2ff, 0xc9dcf5], rim: 0xcfe0ff, spot: ['#e0f0ff', '#fff0f8', '#ffffff'], cone: '#e6f2ff', fall: 'snow', twink: null, glow: '#5b8ee0', sub: '#ffe58a', pill: true },
   garden: { coneOp: .02, lum: .55, short: 'Garden', e: '🌷', bgTop: '#6fc3f5', bgBot: '#d9f6d0', run: '#fbe6cf', runR: .45, runM: 0, stripe: '#ffb3d1', floor: '#5fbf5a', lightA: ['#ff8fc7', '#ffe58a'], lightB: ['#c9a6ff', '#9ff0c8'], curt: null, arch: '#ffd1e8', hemi: [0xf4ffe8, 0x9ad68f], rim: 0xffe8c8, spot: ['#fff4d0', '#ffe0f0', '#ffffff'], cone: '#fff6d6', fall: 'petal', twink: null, glow: '#2d8a4e', sub: '#fff3a0', pill: true },
   idol: { coneOp: .12, lum: .85, short: 'Idol Concert', e: '🎤', bgTop: '#07020f', bgBot: '#2a0b4f', run: '#2a1450', runR: .08, runM: .5, stripe: '#ff3fae', floor: '#0a0418', lightA: ['#ff3fae', '#ffd23f'], lightB: ['#38e8ff', '#a855f7'], curt: '#1a0a33', arch: '#ff3fae', hemi: [0xb48cff, 0x2a1060], rim: 0xff5fd2, spot: ['#ff3fae', '#a855f7', '#ffd23f'], cone: '#ff8fe0', fall: null, twink: '#ffd9ff', glow: '#ff3fae', sub: '#ffd23f', pill: false },
-  ninja: { coneOp: .03, lum: .72, short: 'Ninja Village', e: '🏮', bgTop: '#2b1457', bgBot: '#ff9a62', run: '#7a5240', runR: .7, runM: 0, stripe: '#ffcf6b', floor: '#2a1a2e', lightA: ['#ff6a3d', '#ffd27a'], lightB: ['#ffb347', '#ff7a59'], curt: null, arch: '#c0392b', hemi: [0xffd9b0, 0x6a3a6a], rim: 0xffa070, spot: ['#ffd3a0', '#ffb0a0', '#fff0d0'], cone: '#ffd9a8', fall: 'leaf', twink: null, glow: '#ff7a3d', sub: '#ffe0a0', pill: true }
+  ninja: { coneOp: .03, lum: .72, short: 'Ninja Village', e: '🏮', bgTop: '#2b1457', bgBot: '#ff9a62', run: '#7a5240', runR: .7, runM: 0, stripe: '#ffcf6b', floor: '#2a1a2e', lightA: ['#ff6a3d', '#ffd27a'], lightB: ['#ffb347', '#ff7a59'], curt: null, arch: '#c0392b', hemi: [0xffd9b0, 0x6a3a6a], rim: 0xffa070, spot: ['#ffd3a0', '#ffb0a0', '#fff0d0'], cone: '#ffd9a8', fall: 'leaf', twink: null, glow: '#ff7a3d', sub: '#ffe0a0', pill: true },
+  tihar: { coneOp: .05, lum: .8, short: 'Tihar Lights', e: '🪔', bgTop: '#120a3d', bgBot: '#ff8a2b', run: '#7a3b30', runR: .45, runM: .05, stripe: '#ffcf5a', floor: '#1a0b26', lightA: ['#ffb02e', '#ff7a1a'], lightB: ['#ffd95a', '#ff5fa2'], curt: null, arch: '#ffb347', hemi: [0xffd9a0, 0x5a2a4a], rim: 0xffa050, spot: ['#ffd27a', '#ffb868', '#fff0c8'], cone: '#ffd9a0', fall: null, twink: '#ffd27a', glow: '#ff9a2e', sub: '#ffe58a', pill: true }
 };
 function rrect(g, x, y, w, h, r) { g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
 function spark4(g, x, y, r) { g.beginPath(); g.moveTo(x, y - r); g.quadraticCurveTo(x, y, x + r, y); g.quadraticCurveTo(x, y, x, y + r); g.quadraticCurveTo(x, y, x - r, y); g.quadraticCurveTo(x, y, x, y - r); g.fill(); }
@@ -836,6 +847,43 @@ const ART = {
       const x = 40 + i * 94, y = 30 + Math.sin((x / 1024) * Math.PI) * 52 + 12; const lg = g.createRadialGradient(x, y + 16, 2, x, y + 16, 36); lg.addColorStop(0, 'rgba(255,170,90,.8)'); lg.addColorStop(1, 'rgba(255,120,60,0)');
       g.fillStyle = lg; g.fillRect(x - 40, y - 24, 80, 80); g.fillStyle = i % 2 ? '#ff5a3c' : '#ff9a3c'; g.beginPath(); g.ellipse(x, y + 16, 15, 20, 0, 0, TAU); g.fill();
       g.fillStyle = '#3a1810'; g.fillRect(x - 8, y - 6, 16, 5); g.fillRect(x - 8, y + 33, 16, 4);
+    }
+  },
+  tihar(g) {
+    g.fillStyle = vgrad(g, [[0, '#120a3d'], [.4, '#4a2478'], [.72, '#ff7a3d'], [1, '#ffb347']]); g.fillRect(0, 0, 1024, 512);
+    const rnd = mulberry(63);
+    for (let i = 0; i < 80; i++) { g.fillStyle = `rgba(255,255,255,${.25 + rnd() * .6})`; g.beginPath(); g.arc(rnd() * 1024, rnd() * 200, .6 + rnd() * 1.5, 0, TAU); g.fill(); }
+    const hg = g.createRadialGradient(512, 400, 10, 512, 400, 420); hg.addColorStop(0, 'rgba(255,200,110,.75)'); hg.addColorStop(1, 'rgba(255,140,60,0)'); g.fillStyle = hg; g.fillRect(0, 0, 1024, 512);
+    // far snowy mountains
+    const peaks = [[0, 330], [90, 270], [170, 310], [270, 215], [370, 300], [470, 250], [560, 310], [670, 205], [770, 295], [860, 255], [950, 300], [1024, 280]];
+    g.fillStyle = 'rgba(70,40,110,.8)'; g.beginPath(); g.moveTo(0, 420); peaks.forEach(p => g.lineTo(p[0], p[1])); g.lineTo(1024, 420); g.closePath(); g.fill();
+    g.fillStyle = 'rgba(255,240,230,.85)';
+    peaks.forEach((p, i) => { if (p[1] < 265) { g.beginPath(); g.moveTo(p[0], p[1]); g.lineTo(p[0] - 32, p[1] + 46); g.lineTo(p[0] - 12, p[1] + 38); g.lineTo(p[0], p[1] + 56); g.lineTo(p[0] + 14, p[1] + 38); g.lineTo(p[0] + 34, p[1] + 46); g.closePath(); g.fill(); } });
+    // town silhouette with glowing windows
+    const house = (x, y, w, h, tall) => {
+      g.fillStyle = '#1a0b2e'; g.fillRect(x, y, w, h);
+      g.beginPath(); g.moveTo(x - 8, y + 2); g.lineTo(x + w / 2, y - (tall ? 38 : 24)); g.lineTo(x + w + 8, y + 2); g.closePath(); g.fill();
+      g.fillStyle = '#ffc857'; const cols = Math.max(1, Math.floor(w / 34)); for (let r = 0; r < Math.floor(h / 40); r++) for (let c2 = 0; c2 < cols; c2++) if (rnd() < .75) g.fillRect(x + 10 + c2 * 30, y + 12 + r * 38, 12, 16);
+    };
+    for (let x = -10, i = 0; x < 1030; x += 70 + rnd() * 40, i++) { const w = 62 + rnd() * 36, h = 70 + rnd() * 60, y = 468 - h; house(x, y, w, h, i % 3 === 0); }
+    // pagoda-roofed tower in the middle
+    g.fillStyle = '#1a0b2e'; for (let k = 0; k < 3; k++) { const w = 150 - k * 34, y = 330 + k * 48; g.fillRect(512 - w / 2 + 16, y, w - 32, 44); g.beginPath(); g.moveTo(512 - w * .8, y + 8); g.quadraticCurveTo(512 - w * .3, y + 2, 512, y - 28); g.quadraticCurveTo(512 + w * .3, y + 2, 512 + w * .8, y + 8); g.closePath(); g.fill(); }
+    g.fillStyle = '#ffc857'; g.fillRect(500, 440, 24, 28);
+    g.fillStyle = '#1a0b2e'; g.fillRect(0, 466, 1024, 46);
+    // string lights across the top
+    g.strokeStyle = 'rgba(30,12,40,.85)'; g.lineWidth = 3; g.beginPath(); g.moveTo(0, 26); g.quadraticCurveTo(256, 96, 512, 30); g.quadraticCurveTo(768, 96, 1024, 26); g.stroke();
+    const cols2 = ['#ffb02e', '#ff5fa2', '#ffe066', '#ff7a3d'];
+    for (let i = 0; i < 22; i++) {
+      const t = i / 21, x = t * 1024, y = 26 + (t < .5 ? Math.sin(t * 2 * Math.PI / 2) * 46 : Math.sin((t - .5) * 2 * Math.PI / 2) * 46) + 8, c = cols2[i % 4];
+      const lg = g.createRadialGradient(x, y + 10, 1, x, y + 10, 30); lg.addColorStop(0, c); lg.addColorStop(1, 'rgba(255,160,60,0)'); g.globalAlpha = .7; g.fillStyle = lg; g.fillRect(x - 30, y - 20, 60, 60); g.globalAlpha = 1;
+      g.fillStyle = c; g.beginPath(); g.ellipse(x, y + 10, 7, 10, 0, 0, TAU); g.fill();
+    }
+    // a row of tiny diyo flames along the bottom
+    for (let i = 0; i < 26; i++) {
+      const x = 20 + i * 39.5, y = 488;
+      const lg = g.createRadialGradient(x, y - 6, 1, x, y - 6, 24); lg.addColorStop(0, 'rgba(255,200,90,.9)'); lg.addColorStop(1, 'rgba(255,140,40,0)'); g.fillStyle = lg; g.fillRect(x - 24, y - 30, 48, 48);
+      g.fillStyle = '#c4562a'; g.beginPath(); g.ellipse(x, y + 2, 12, 7, 0, 0, Math.PI); g.fill();
+      g.fillStyle = '#ffd23f'; g.beginPath(); g.ellipse(x, y - 6, 4, 8, 0, 0, TAU); g.fill();
     }
   }
 };
@@ -1015,6 +1063,50 @@ function drawBackdrop() {
     const roofG = new THREE.BoxGeometry(1.8, .12, 1.2), wallG = new THREE.BoxGeometry(1.5, 1, 1), roofM = stdMat('#3a2030', { roughness: .8 }), wallM = stdMat('#5a3a3a', { roughness: .9 });
     [[-4.8, -3.4], [4.9, -2.6], [-5.2, 0.6]].forEach(([x, z]) => { const w = new THREE.Mesh(wallG, wallM); w.position.set(x, .4, z); G.add(w); const r = new THREE.Mesh(roofG, roofM); r.position.set(x, 1.0, z); r.scale.set(1.25, 1, 1.25); G.add(r); });
   }
+  { // Tihar lights: diyo lamps along the runway edges, marigold swags, rangoli on the floor
+    const G = decorGroup('tihar');
+    const halo = stg.haloTex;
+    const nz = 19, nD = nz * 2, dx = [], dz = [];
+    for (let side = -1; side <= 1; side += 2) for (let i = 0; i < nz; i++) { dx.push(side * 0.97); dz.push(-6.2 + i * .55); }
+    const bowlGeo = new THREE.SphereGeometry(.07, 14, 8, 0, TAU, Math.PI / 2, Math.PI / 2); bowlGeo.scale(1, .55, 1); bowlGeo.translate(0, .04, 0);
+    const bowls = new THREE.InstancedMesh(bowlGeo, stdMat('#c4562a', { roughness: .8, side: THREE.DoubleSide }), nD);
+    const flameGeo = new THREE.ConeGeometry(.02, .09, 8); flameGeo.translate(0, .045, 0);
+    const flames = new THREE.InstancedMesh(flameGeo, new THREE.MeshBasicMaterial({ color: '#ffb02e', toneMapped: false }), nD);
+    const dm = new THREE.Object3D();
+    for (let i = 0; i < nD; i++) { dm.position.set(dx[i], 0, dz[i]); dm.scale.set(1, 1, 1); dm.updateMatrix(); bowls.setMatrixAt(i, dm.matrix); dm.position.set(dx[i], .045, dz[i]); dm.updateMatrix(); flames.setMatrixAt(i, dm.matrix); }
+    G.add(bowls, flames);
+    const hp = new Float32Array(nD * 3), hc = new Float32Array(nD * 3), ph = new Float32Array(nD), r5 = mulberry(31);
+    for (let i = 0; i < nD; i++) { hp[i * 3] = dx[i]; hp[i * 3 + 1] = .09; hp[i * 3 + 2] = dz[i]; ph[i] = r5() * 6.28; hc[i * 3] = 1; hc[i * 3 + 1] = .65; hc[i * 3 + 2] = .2; }
+    const hg = new THREE.BufferGeometry(); hg.setAttribute('position', new THREE.BufferAttribute(hp, 3)); hg.setAttribute('color', new THREE.BufferAttribute(hc, 3));
+    const hpts = new THREE.Points(hg, new THREE.PointsMaterial({ size: .5, map: halo, vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); hpts.frustumCulled = false; G.add(hpts);
+    stg.diyo = { flames, halo: hg, hc, ph, dx, dz, n: nD, dm };
+    // marigold swags across the back
+    const swags = []; // [x0, x1, top, sag, zOff]
+    [[-6.6, -2.2, 5.2, .8], [-2.2, 2.2, 5.2, .8], [2.2, 6.6, 5.2, .8], [-4.4, 0, 4.7, .6], [0, 4.4, 4.7, .6]].forEach(a => swags.push(a));
+    const per = 26, strands = [[-2.2, 5.2, 1.0], [2.2, 5.2, 1.0], [0, 4.7, 1.0], [-4.4, 4.7, .9], [4.4, 4.7, .9], [-6.6, 5.2, 1.3], [6.6, 5.2, 1.3]], sp = 11;
+    const total = swags.length * per + strands.length * sp;
+    const mari = new THREE.InstancedMesh(new THREE.SphereGeometry(.085, 10, 8), stdMat('#ffffff', { roughness: .7, emissive: '#6a3000', emissiveIntensity: .7 }), total);
+    const cc = new THREE.Color(), mc = ['#ff8c00', '#ffb400', '#ff7a00', '#ffd21a'], r6 = mulberry(8); let n2 = 0;
+    const put = (x, y, z, k) => { dm.position.set(x, y, z); dm.scale.set(1, .85, 1); dm.updateMatrix(); mari.setMatrixAt(n2, dm.matrix); mari.setColorAt(n2, cc.set(mc[(n2 + (r6() * 2 | 0)) % 4])); n2++; };
+    swags.forEach(([x0, x1, top, sag], si) => { const hw = (x1 - x0) / 2, xc = (x0 + x1) / 2; for (let i = 0; i < per; i++) { const t = i / (per - 1), x = x0 + t * (x1 - x0), u = (x - xc) / hw; put(x, top - sag * (1 - u * u), si < 3 ? -7.0 : -6.9, i); } });
+    strands.forEach(([x, top, len]) => { for (let i = 0; i < sp; i++) put(x, top - 0.1 - i * (len / sp) * 1.0, -6.95, i); });
+    mari.instanceMatrix.needsUpdate = true; mari.instanceColor.needsUpdate = true; G.add(mari);
+    // rangoli: coloured powder pattern drawn on a flat disc
+    const rc = document.createElement('canvas'); rc.width = rc.height = 512; const rg = rc.getContext('2d'); rg.translate(256, 256);
+    const dots = (r, n, rad, col) => { rg.fillStyle = col; for (let k = 0; k < n; k++) { const a = k / n * TAU; rg.beginPath(); rg.arc(Math.cos(a) * r, Math.sin(a) * r, rad, 0, TAU); rg.fill(); } };
+    const petals = (n, r0, r1, w, col, off = 0) => { rg.fillStyle = col; for (let k = 0; k < n; k++) { rg.save(); rg.rotate(off + k / n * TAU); rg.beginPath(); rg.moveTo(0, -r0); rg.quadraticCurveTo(w, -(r0 + r1) / 2, 0, -r1); rg.quadraticCurveTo(-w, -(r0 + r1) / 2, 0, -r0); rg.fill(); rg.restore(); } };
+    rg.fillStyle = '#2a0f3a'; rg.beginPath(); rg.arc(0, 0, 250, 0, TAU); rg.fill();
+    dots(238, 48, 5, '#ffe58a'); rg.strokeStyle = '#ffffff'; rg.lineWidth = 5; rg.beginPath(); rg.arc(0, 0, 224, 0, TAU); rg.stroke();
+    petals(16, 150, 222, 30, '#ff2d95'); petals(16, 150, 205, 18, '#ffd23f', TAU / 32);
+    dots(176, 16, 8, '#ffffff');
+    rg.strokeStyle = '#ff8c1a'; rg.lineWidth = 8; rg.beginPath(); rg.arc(0, 0, 146, 0, TAU); rg.stroke();
+    petals(12, 70, 140, 34, '#2dd4bf'); petals(12, 74, 118, 18, '#ffffff', TAU / 24);
+    petals(8, 20, 76, 22, '#ff8c1a'); petals(8, 20, 52, 11, '#ffd23f', TAU / 16);
+    rg.fillStyle = '#e11d48'; rg.beginPath(); rg.arc(0, 0, 22, 0, TAU); rg.fill(); rg.fillStyle = '#ffffff'; rg.beginPath(); rg.arc(0, 0, 9, 0, TAU); rg.fill();
+    const rtex = new THREE.CanvasTexture(rc); rtex.colorSpace = THREE.SRGBColorSpace; rtex.anisotropy = 4;
+    const rangoli = new THREE.Mesh(new THREE.CircleGeometry(1.02, 64), new THREE.MeshBasicMaterial({ map: rtex, transparent: true, polygonOffset: true, polygonOffsetFactor: -2 }));
+    rangoli.rotation.x = -Math.PI / 2; rangoli.position.set(0, .006, 2.4); G.add(rangoli);
+  }
 }
 function setFall(mode) {
   if (!fall) return; fall.mode = mode; fall.pts.visible = !!mode; if (!mode) return;
@@ -1136,7 +1228,8 @@ const POSES = [
   { id: 'peace', label: '✌️ Peace!', a0: [-.35, 2.2], e0: [-.1, 1.1], hz: .14, expr: 'wink' },
   { id: 'heart', label: '💖 Finger heart', a0: [-1.15, .12], e0: [-1.8, 0], a1: [-.1, -.5], e1: [-.25, .55], hz: .16, expr: 'happy' },
   { id: 'mic', label: '🎤 Mic point', a0: [-1.4, .85], e0: [-.12, 0], a1: [-1.05, .75], e1: [-1.9, 0], hz: -.1, expr: 'singing' },
-  { id: 'ninja', label: '🥷 Ninja ready', a0: [-1.25, .5], e0: [-.45, 0], a1: [-.55, .3], e1: [-1.9, 0], hz: 0, expr: 'fierce', leg: { t0: [-.32, .3], t1: [.14, -.3], k0: .62, k1: .5, drop: .05 } }
+  { id: 'ninja', label: '🥷 Ninja ready', a0: [-1.25, .5], e0: [-.45, 0], a1: [-.55, .3], e1: [-1.9, 0], hz: 0, expr: 'fierce', leg: { t0: [-.32, .3], t1: [.14, -.3], k0: .62, k1: .5, drop: .05 } },
+  { id: 'namaste', label: '🙏 Namaste', a0: [-.2, -.35], e0: [-2, -.5], a1: [-.2, .35], e1: [-2, .5], hz: 0, hx: .28, expr: 'happy' }
 ];
 // y of the face surface at (x, y) for the head ellipsoid, so brows / paint sit on it
 const faceZ = (x, y) => .96 * Math.sqrt(Math.max(.0001, .0361 - x * x - (y / .96) * (y / .96)));
@@ -1184,6 +1277,7 @@ class Character {
       wing2: new THREE.MeshStandardMaterial({ color: '#ffc6ee', roughness: .25, emissive: '#ff8fd0', emissiveIntensity: .35, transparent: true, opacity: .62, side: THREE.DoubleSide, depthWrite: false }),
       brow: new THREE.MeshBasicMaterial({ color: '#4a2c36' }), mouthIn: new THREE.MeshBasicMaterial({ color: 0x7a1030 }),
       tongue: new THREE.MeshBasicMaterial({ color: 0xff7a9a }), teeth: new THREE.MeshBasicMaterial({ color: 0xffffff }),
+      rato: stdMat('#d4122b', { roughness: .45 }), ratoD: stdMat('#9e0b1f', { roughness: .5 }), mari: stdMat('#ff8c00', { roughness: .7, emissive: '#5a2a00', emissiveIntensity: .4 }), mari2: stdMat('#ffc400', { roughness: .7, emissive: '#5a4300', emissiveIntensity: .4 }), guR: stdMat('#e0142c', { roughness: .5, emissive: '#600010', emissiveIntensity: .25, side: THREE.DoubleSide }),
       legging: stdMat('#1b1a2e', { roughness: .6 }), steel: stdMat('#c9ced6', { metalness: .9, roughness: .25, envMapIntensity: 1.1 })
     };
     const add = (parent, geo, mat, x = 0, y = 0, z = 0, cast = true) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = cast; parent.add(m); return m; };
@@ -1300,7 +1394,29 @@ class Character {
       const sp2 = new THREE.Mesh(spikeGeo, M.hair); sp2.position.copy(dir).multiplyScalar(.185).add(new THREE.Vector3(0, .01, -.01)); sp2.quaternion.setFromUnitVectors(_up, dir); sp2.castShadow = true; this.spikyG.add(sp2);
     }
     { const top = new THREE.Mesh(spikeGeo, M.hair); top.position.set(0, .205, -.03); top.quaternion.setFromUnitVectors(_up, new THREE.Vector3(0, 1, -.3).normalize()); this.spikyG.add(top); }
-    this.styleGroups = { pony: this.pony, bun: this.bun, pig: this.pigG, long: this.longG, curly: this.curlyG, braid: this.braidG, hpony: this.hpony, sbuns: this.sbunsG, twin: this.twinG, lbraid: this.lbraidG, spiky: this.spikyG };
+    // chulthi: one long braid down the back finished with a red tassel
+    this.chulthiG = new THREE.Group(); this.chulthiG.position.set(0, .05, -.19); head.add(this.chulthiG);
+    for (let k = 0; k < 11; k++) addS(this.chulthiG, M.hair, (k % 2 ? .014 : -.014), -.03 - k * .056, -k * .005, .042 - k * .0016, .054, .036);
+    {
+      const yE = -.03 - 11 * .056, zE = -11 * .005;
+      addS(this.chulthiG, M.rato, 0, yE + .004, zE, .03, .026, .03);
+      const tas = new THREE.Group(); tas.position.set(0, yE - .01, zE); this.chulthiG.add(tas);
+      addS(tas, M.ratoD, 0, -.004, 0, .022);
+      for (let j = 0; j < 9; j++) { const a = (j - 4) * .22, f = add(tas, new THREE.CylinderGeometry(.0058, .0052, .15, 5), j % 2 ? M.rato : M.ratoD, Math.sin(a) * .008, -.085, Math.cos(a) * .004 * (j % 3 - 1), false); f.rotation.z = -a * .18; f.rotation.x = (j % 3 - 1) * .1; }
+    }
+    // ribbon plaits: two braids looped back up and tied with red bows
+    this.ribbonsG = new THREE.Group(); head.add(this.ribbonsG);
+    for (const s of [-1, 1]) {
+      const P0 = [s * .176, .075, -.04], P1 = [s * .27, -.3, -.075], P2 = [s * .21, -.0, -.035], bz = (a, b, c2, t) => (1 - t) * (1 - t) * a + 2 * (1 - t) * t * b + t * t * c2;
+      for (let k = 0; k <= 9; k++) {
+        const t = k / 9; addS(this.ribbonsG, M.hair, bz(P0[0], P1[0], P2[0], t) + (k % 2 ? .006 : -.006) * s, bz(P0[1], P1[1], P2[1], t), bz(P0[2], P1[2], P2[2], t), .036, .036, .034);
+      }
+      const bow = new THREE.Group(); bow.position.set(P2[0] + s * .02, P2[1] + .004, P2[2] + .012); bow.rotation.set(0, s * 1.15, 0); bow.scale.setScalar(1.3); this.ribbonsG.add(bow);
+      for (const q of [-1, 1]) { const l = addS(bow, M.rato, q * .038, 0, 0, .04, .026, .012); l.rotation.z = q * .3; }
+      addS(bow, M.ratoD, 0, 0, .004, .015);
+      for (const q of [-1, 1]) { const t2 = add(bow, new THREE.BoxGeometry(.016, .075, .004), M.rato, q * .012, -.05, 0, false); t2.rotation.z = q * .22; }
+    }
+    this.styleGroups = { pony: this.pony, bun: this.bun, pig: this.pigG, long: this.longG, curly: this.curlyG, braid: this.braidG, hpony: this.hpony, sbuns: this.sbunsG, twin: this.twinG, lbraid: this.lbraidG, spiky: this.spikyG, chulthi: this.chulthiG, ribbons: this.ribbonsG };
     // ---- accessories (any number can be worn) ----
     this.accG = {};
     const crown = this.crown = new THREE.Group(); crown.position.set(0, .2, .035); crown.rotation.x = -.18; head.add(crown);
@@ -1354,6 +1470,9 @@ class Character {
     this.peace = new THREE.Group(); this.peace.position.set(0, -.215, 0); this.elbows[0].add(this.peace); this.peace.visible = false;
     const fing = cap(.011, .04);
     for (const s of [-1, 1]) { const f = add(this.peace, fing, M.skin, s * .014, -.04, 0, false); f.rotation.z = s * .3; }
+    // namaste: joined palms (fingers together, pointing up) shown only in that pose
+    this.namG = new THREE.Group(); this.namG.position.set(0, .248, .168); this.namG.rotation.x = -.3; this.spine.add(this.namG); this.namG.visible = false;
+    { const f = addS(this.namG, M.skin, 0, 0, 0, .016, .052, .022); add(this.namG, cap(.012, .03), M.skin, 0, .02, 0, false); }
     // handbag held in the -x hand; counter-rotated every frame so it always hangs down
     this.bagPivot = new THREE.Group(); this.bagPivot.position.set(0, -.2, 0); this.elbows[1].add(this.bagPivot);
     add(this.bagPivot, new THREE.TorusGeometry(.032, .006, 6, 14), M.gold, 0, -.03, 0, false);
@@ -1451,6 +1570,57 @@ class Character {
       const bill = add(vg, new THREE.CylinderGeometry(.15, .15, .012, 28), visM, 0, .122, .145, false); bill.scale.z = .7; bill.rotation.x = .38;
       this.accG.visor = vg;
     }
+    { // tika: small red dot on the forehead
+      const tk = new THREE.Group(); head.add(tk);
+      const m = new THREE.Mesh(new THREE.CircleGeometry(.0125, 18), new THREE.MeshBasicMaterial({ color: '#d6001c', side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -2 }));
+      m.position.set(0, .086, faceZ(0, .086) + .003); m.lookAt(m.position.clone().multiplyScalar(2)); tk.add(m);
+      this.accG.tika = tk;
+    }
+    { // bangles (chura): thin coloured rings on both wrists
+      const cols = ['#e11d48', '#16a34a', '#facc15', '#ec4899', '#3b82f6'], sets = [];
+      this.elbows.forEach(el => {
+        const g = new THREE.Group(); el.add(g); sets.push(g);
+        cols.forEach((c2, k) => { const r = add(g, new THREE.TorusGeometry(.0345, .0042, 6, 18), stdMat(c2, { roughness: .3, metalness: .15 }), 0, -.128 - k * .0105, 0, false); r.rotation.x = Math.PI / 2; });
+      });
+      this.accG.bangles = { set visible(v) { sets.forEach(g => g.visible = v); }, get visible() { return sets[0].visible; } };
+    }
+    { // jhumka: small gold bell earrings
+      const jh = new THREE.Group(); head.add(jh);
+      const bellGeo = new THREE.SphereGeometry(.02, 14, 8, 0, TAU, 0, Math.PI * .66);
+      for (const s of [-1, 1]) {
+        const g = new THREE.Group(); g.position.set(s * .192, -.05, -.004); jh.add(g);
+        addS(g, M.gold, 0, .008, 0, .008); add(g, new THREE.TorusGeometry(.006, .0018, 5, 10), M.gold, 0, -.002, 0, false);
+        add(g, bellGeo, M.gold, 0, -.034, 0, false); addS(g, M.gold, 0, -.052, 0, .005);
+        for (let q = 0; q < 6; q++) { const a = q / 6 * TAU; addS(g, M.gold, Math.sin(a) * .0175, -.0455, Math.cos(a) * .0175, .0035); }
+      }
+      this.accG.jhumka = jh;
+    }
+    { // marigold mala: garland of orange and yellow blossoms draped around the neck
+      const mg = new THREE.Group(); mg.position.set(0, .305, 0); spine.add(mg);
+      const nb = 30;
+      for (let k = 0; k < nb; k++) {
+        const a = k / nb * TAU, cz = Math.cos(a), f = Math.max(0, cz), rz = cz > 0 ? .118 + .042 * f : .122, rx = .132;
+        const x = Math.sin(a) * rx, z = cz * rz, y = -.115 * Math.pow(f, 1.7);
+        const o = addS(mg, k % 2 ? M.mari : M.mari2, x, y, z, .026, .022, .026);
+        addS(mg, k % 2 ? M.mari2 : M.mari, x * 1.07, y + .003, z * 1.07, .014);
+      }
+      this.accG.marigold = mg;
+    }
+    { // lali gurans: red rhododendron blossoms tucked in the hair above the ear
+      const gu = new THREE.Group(); head.add(gu);
+      const Z = new THREE.Vector3(0, 0, 1), dk = stdMat('#7a0a18', { roughness: .6 });
+      const flowerAt = (dir, sc, roll) => {
+        const d = new THREE.Vector3(...dir).normalize(), f = new THREE.Group(); f.position.copy(d).multiplyScalar(.2); f.quaternion.setFromUnitVectors(Z, d); f.rotateZ(roll); f.scale.setScalar(sc); gu.add(f);
+        for (let k = 0; k < 5; k++) { const a = k / 5 * TAU; const p = addS(f, M.guR, Math.cos(a) * .019, Math.sin(a) * .019, 0, .026, .02, .008); p.rotation.z = a; }
+        addS(f, dk, 0, 0, .004, .008);
+        for (let k = 0; k < 6; k++) { const a = k / 6 * TAU + .3; rod(f, [0, 0, .004], [Math.cos(a) * .017, Math.sin(a) * .017, .026], .0011, dk); addS(f, M.fctr, Math.cos(a) * .017, Math.sin(a) * .017, .027, .0032); }
+      };
+      flowerAt([-.9, .38, .2], 1.05, .2); flowerAt([-.82, .5, .42], .8, 1.0); flowerAt([-.88, .22, .38], .85, 2.0);
+      for (const [dir, rz] of [[[-.95, .42, -.05], 1.2], [[-.84, .55, .12], -.6], [[-.93, .12, .3], .3]]) {
+        const d = new THREE.Vector3(...dir).normalize(), l = addS(gu, M.leaf, d.x * .19, d.y * .19, d.z * .19, .034, .012, .016); l.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), d); l.rotateZ(rz);
+      }
+      this.accG.gurans = gu;
+    }
     // ---- props that only appear in poses ----
     this.heartG = new THREE.Group(); this.root.add(this.heartG); this.heartG.visible = false;
     { const hm = new THREE.Mesh(HEART_GEO, new THREE.MeshBasicMaterial({ color: '#e6004d', toneMapped: false })); hm.scale.setScalar(.05); this.heartG.add(hm);
@@ -1489,6 +1659,7 @@ class Character {
     for (const k in this.garments) this.garments[k].mesh.visible = (k === id);
     const d = DRESSES.find(x => x.id === id); this.walkScale = d.walk; this.armTarget = d.spread; this.swayK = d.sway || 1; this.stanceK = d.stance != null ? d.stance : clamp(d.spread / .3, .4, 1);
     if (this.leggings) this.leggings.forEach(m => m.visible = !!d.leggings);
+    if (this.mat) this.mat.legging.color.set(d.legCol || '#1b1a2e');
     if (this.norG) this.fitNorigae();
   }
   // seat the waist tassel on the surface of the current dress, following its slope
@@ -1550,14 +1721,14 @@ class Character {
       const blend = (o, v) => { if (!v) return; o.rotation.x = lerp(o.rotation.x, v[0], pe); o.rotation.z = lerp(o.rotation.z, v[1], pe); };
       blend(ar[0], T.a0); blend(ar[1], T.a1); blend(el[0], typeof T.e0 === 'function' ? T.e0(t) : T.e0); blend(el[1], T.e1);
     }
-    this.peace.visible = this.poseId === 3 && p > .5;
+    this.peace.visible = this.poseId === 3 && p > .5; this.namG.visible = this.poseId === 7 && p > .5;
     this.heartG.visible = this.poseId === 4 && p > .5; this.micG.visible = this.poseId === 5 && p > .5;
     if (this.heartG.visible) { // keep the little heart facing the audience
       this.root.updateWorldMatrix(true, true); _v1.set(0, -.23, 0); this.elbows[0].localToWorld(_v1); this.root.worldToLocal(_v1);
       this.heartG.position.copy(_v1).add(_v2.set(0, .05, .085)); this.heartG.scale.setScalar(1 + Math.sin(t * 6) * .08);
     }
     // head
-    this.headPivot.rotation.set(Math.sin(t * .9) * .02 * idle, -hy * .6 + Math.sin(t * .7) * .06 * idle, .2 * pw + (T.hz || 0) * pe + Math.sin(t * .8) * .02);
+    this.headPivot.rotation.set(Math.sin(t * .9) * .02 * idle + (T.hx || 0) * pe, -hy * .6 + Math.sin(t * .7) * .06 * idle, .2 * pw + (T.hz || 0) * pe + Math.sin(t * .8) * .02);
     // hair swing (only the visible styles matter, but the maths is trivial)
     const sw2 = Math.sin(phase * 2 + 1);
     this.pony.rotation.x = .35 + sw2 * .22 * w + Math.sin(t * 1.6) * .05 * idle;
@@ -1568,6 +1739,7 @@ class Character {
     this.hpony.rotation.x = .9 + sw2 * .2 * w + Math.sin(t * 1.6) * .05 * idle; this.hpony.rotation.z = Math.sin(phase) * .2 * w + Math.sin(t * 1.1) * .03;
     this.twins.forEach((g, i) => { g.rotation.z = g.userData.s * .45 + Math.sin(phase * 2 + i * 2) * .14 * w + Math.sin(t * 1.4 + i) * .04; g.rotation.x = sw2 * .1 * w; });
     this.lbraidG.rotation.x = .1 + sw2 * .14 * w + Math.sin(t * 1.5) * .03; this.lbraidG.rotation.z = Math.sin(phase) * .2 * w + Math.sin(t * 1.1) * .02;
+    this.chulthiG.rotation.x = .1 + sw2 * .14 * w + Math.sin(t * 1.5) * .03; this.chulthiG.rotation.z = Math.sin(phase) * .2 * w + Math.sin(t * 1.1) * .02;
     this.nbTails.rotation.x = sw2 * .25 * w + Math.sin(t * 1.8) * .06; this.nbTails.rotation.z = Math.sin(phase) * .2 * w;
     this.norSwing.rotation.z = Math.sin(phase) * .25 * w + Math.sin(t * 1.9) * .05; this.norSwing.rotation.x = sw2 * .15 * w;
     // wings flap
@@ -1631,7 +1803,7 @@ try {
     });
   }
   if (savedState && typeof savedState.theme === 'string' && THEMES[savedState.theme]) themeId = savedState.theme;
-  if (savedState && ['pop', 'dream', 'dance', 'kpop', 'ninja'].includes(savedState.music)) musicId = savedState.music;
+  if (savedState && ['pop', 'dream', 'dance', 'kpop', 'ninja', 'madal'].includes(savedState.music)) musicId = savedState.music;
 } catch (e) { /* keep defaults */ }
 const chars = DESIGNERS.map((d, i) => new Character(i, d.cfg));
 // soft light just in front of her face: the show spotlights come from high above and
@@ -1658,7 +1830,24 @@ const designKey = g => `tfs.v2.design.${g.designerIdx}.${g.def.id}`;
 function starPath(c, x, y, R) { c.beginPath(); for (let k = 0; k < 10; k++) { const r = k % 2 ? R * .45 : R, a = -Math.PI / 2 + k * Math.PI / 5; c[k ? 'lineTo' : 'moveTo'](x + Math.cos(a) * r, y + Math.sin(a) * r); } c.closePath(); c.fill(); }
 function heartPath(c, x, y, s) { c.beginPath(); c.moveTo(x, y + s * .9); c.bezierCurveTo(x - s * 1.5, y - s * .1, x - s * .7, y - s * 1.1, x, y - s * .35); c.bezierCurveTo(x + s * .7, y - s * 1.1, x + s * 1.5, y - s * .1, x, y + s * .9); c.fill(); }
 function sparkle(c, x, y, r) { c.beginPath(); c.moveTo(x, y - r); c.quadraticCurveTo(x, y, x + r, y); c.quadraticCurveTo(x, y, x, y + r); c.quadraticCurveTo(x, y, x - r, y); c.quadraticCurveTo(x, y, x, y - r); c.fill(); }
+function drawNepalFlag(c, h) { // double-pennant flag, centred on (0,0), total height h
+  const W = h / 1.22, ox = -W / 2, oy = -h / 2, X = u => ox + u * W, Y = u => oy + u * W;
+  const P = [[0, 0], [.72, .44], [.2, .44], [1, 1.22], [0, 1.22]];
+  const path = () => { c.beginPath(); P.forEach((q, k) => c[k ? 'lineTo' : 'moveTo'](X(q[0]), Y(q[1]))); c.closePath(); };
+  c.save(); path(); c.fillStyle = '#dc143c'; c.fill();
+  c.save(); path(); c.clip(); c.lineJoin = 'miter'; c.miterLimit = 6; c.strokeStyle = '#003893'; c.lineWidth = W * .1; path(); c.stroke(); c.restore();
+  // moon (upper pennant): crescent with a small sunburst
+  c.fillStyle = '#ffffff'; crescent(c, X(.2), Y(.31), W * .09, -Math.PI / 2);
+  c.beginPath(); c.arc(X(.2), Y(.2), W * .026, 0, 6.2832); c.fill();
+  // sun (lower pennant): disc with 12 rays
+  const sx = X(.235), sy = Y(.86), r0 = W * .062;
+  c.beginPath(); c.arc(sx, sy, r0, 0, 6.2832); c.fill();
+  c.beginPath(); for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; c.moveTo(sx + Math.cos(a - .13) * r0 * 1.12, sy + Math.sin(a - .13) * r0 * 1.12); c.lineTo(sx + Math.cos(a) * r0 * 1.75, sy + Math.sin(a) * r0 * 1.75); c.lineTo(sx + Math.cos(a + .13) * r0 * 1.12, sy + Math.sin(a + .13) * r0 * 1.12); }
+  c.fill(); c.restore();
+}
+function flagCanvas(h) { const cv = document.createElement('canvas'); cv.width = Math.ceil(h / 1.22 + 4); cv.height = Math.ceil(h + 4); const x = cv.getContext('2d'); x.translate(cv.width / 2, cv.height / 2); drawNepalFlag(x, h); return cv; }
 function emoji(c, e, x, y, size, rot = 0) {
+  if (e === 'NPFLAG') { c.save(); c.translate(x, y); c.rotate(rot); drawNepalFlag(c, size * .98); c.restore(); return; }
   c.save(); c.translate(x, y); c.rotate(rot); c.font = `${size}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
   c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillStyle = '#000'; c.fillText(e, 0, 0); c.restore();
 }
@@ -1673,7 +1862,8 @@ function glitterAt(c, x, y, rad, n, accent) {
   }
 }
 const PATS = [['dots', 'Dots'], ['stripes', 'Stripes'], ['stars', 'Stars'], ['hearts', 'Hearts'], ['zigzag', 'Zigzag'], ['checks', 'Gingham'], ['flowers', 'Flowers'], ['leopard', 'Leopard'], ['clouds', 'Clouds'], ['rainbow', 'Rainbow stripes'], ['bolts', 'Lightning'],
-  ['cloudswirl', 'Cloud swirls'], ['tiger', 'Tiger stripes'], ['flames', 'Flames'], ['neongrid', 'Neon grid'], ['swirl', 'Swirls'], ['moonstars', 'Moon & stars']];
+  ['cloudswirl', 'Cloud swirls'], ['tiger', 'Tiger stripes'], ['flames', 'Flames'], ['neongrid', 'Neon grid'], ['swirl', 'Swirls'], ['moonstars', 'Moon & stars'],
+  ['dhaka', 'Dhaka'], ['gurans', 'Rhododendron'], ['mandala', 'Lotus'], ['himal', 'Himalaya']];
 function crescent(c, x, y, R, rot = 0) {
   const d = R * .42, r = R * .82, xi = (d * d + R * R - r * r) / (2 * d), yi = Math.sqrt(Math.max(0, R * R - xi * xi));
   c.save(); c.translate(x, y); c.rotate(rot); c.beginPath();
@@ -1780,6 +1970,78 @@ function drawPattern(c, kind, colorAt) {
     for (let row = 0, y = 56; y < N + 70; y += sp2 * .84, row++) for (let x = row % 2 ? 0 : sp2 / 2; x < N + 70; x += sp2) {
       const k = i++; c.fillStyle = colorAt(k, x, y);
       if (k % 3 === 0) crescent(c, x, y, sp2 * .25, -.5 + (row % 2)); else if (k % 3 === 1) starPath(c, x, y, sp2 * .2); else sparkle(c, x, y, sp2 * .13);
+    }
+    return;
+  }
+  if (kind === 'dhaka') { // woven Dhaka-fabric bands: diamonds, a zigzag line and a triangle border
+    const acc = '#ffd23f', PT = 150;
+    for (let y0 = 14, r = 0; y0 < N + 100; y0 += PT, r++) {
+      for (let x = r % 2 ? 32 : 0; x < N + 64; x += 64) {
+        const cy = y0 + 40; c.fillStyle = colorAt(i++, x, cy);
+        c.beginPath(); c.moveTo(x, cy - 34); c.lineTo(x + 30, cy); c.lineTo(x, cy + 34); c.lineTo(x - 30, cy); c.closePath(); c.fill();
+        c.fillStyle = acc; c.beginPath(); c.moveTo(x, cy - 13); c.lineTo(x + 11, cy); c.lineTo(x, cy + 13); c.lineTo(x - 11, cy); c.closePath(); c.fill();
+        c.beginPath(); c.moveTo(x + 32, cy - 7); c.lineTo(x + 39, cy); c.lineTo(x + 32, cy + 7); c.lineTo(x + 25, cy); c.closePath(); c.fill();
+      }
+      c.strokeStyle = colorAt(i++, 0, y0 + 96); c.lineWidth = 7; c.lineJoin = 'miter'; c.lineCap = 'butt'; c.beginPath();
+      for (let x = -32, k = 0; x < N + 64; x += 32, k++) { const yy = y0 + 96 + (k % 2 ? 9 : -9); if (k) c.lineTo(x, yy); else c.moveTo(x, yy); }
+      c.stroke();
+      for (let x = -32; x < N + 64; x += 64) {
+        c.fillStyle = colorAt(i++, x, y0 + 126); c.beginPath(); c.moveTo(x - 28, y0 + 140); c.lineTo(x + 28, y0 + 140); c.lineTo(x, y0 + 112); c.closePath(); c.fill();
+        c.fillStyle = acc; c.beginPath(); c.moveTo(x + 4, y0 + 140); c.lineTo(x + 60, y0 + 140); c.lineTo(x + 32, y0 + 118); c.closePath(); c.fill();
+      }
+    }
+    return;
+  }
+  if (kind === 'gurans') { // clusters of five-petal rhododendron blossoms with leaves
+    const sp2 = 210;
+    const bloom = (x, y, R, rot, col) => {
+      c.fillStyle = col; c.beginPath();
+      for (let k = 0; k < 5; k++) { const a = rot + k * 1.2566, px = x + Math.cos(a) * R * .6, py = y + Math.sin(a) * R * .6, rx = R * .62; c.moveTo(px + rx * Math.cos(a), py + rx * Math.sin(a)); c.ellipse(px, py, rx, R * .46, a, 0, 6.283); }
+      c.fill();
+      c.fillStyle = '#7a0a18'; c.beginPath(); c.arc(x, y, R * .2, 0, 6.283); c.fill();
+      c.strokeStyle = '#ffe58a'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath();
+      for (let k = 0; k < 6; k++) { const a = rot + .5 + k * 1.047; c.moveTo(x, y); c.lineTo(x + Math.cos(a) * R * .5, y + Math.sin(a) * R * .5); }
+      c.stroke(); c.fillStyle = '#ffd23f';
+      for (let k = 0; k < 6; k++) { const a = rot + .5 + k * 1.047; c.beginPath(); c.arc(x + Math.cos(a) * R * .52, y + Math.sin(a) * R * .52, 3.2, 0, 6.283); c.fill(); }
+    };
+    for (let row = 0, y = 70; y < N + 100; y += sp2 * .86, row++) for (let x = row % 2 ? 0 : sp2 / 2; x < N + 100; x += sp2) {
+      c.fillStyle = '#2f9e55'; c.beginPath();
+      [[-58, -34, -.55], [58, -38, .55], [-4, -62, -1.5]].forEach(([dx, dy, a]) => { c.moveTo(x + dx + 32 * Math.cos(a), y + dy + 32 * Math.sin(a)); c.ellipse(x + dx, y + dy, 32, 12, a, 0, 6.283); });
+      c.fill();
+      const col = colorAt(i++, x, y);
+      bloom(x, y, 40, i * .7, col); bloom(x - 40, y + 26, 28, i * 1.3, col); bloom(x + 38, y + 30, 26, i * 2.1, col);
+    }
+    return;
+  }
+  if (kind === 'mandala') { // repeated lotus rosettes
+    const sp2 = 230;
+    for (let row = 0, y = 90; y < N + 130; y += sp2 * .86, row++) for (let x = row % 2 ? 0 : sp2 / 2; x < N + 130; x += sp2) {
+      const col = colorAt(i++, x, y);
+      c.save(); c.translate(x, y); c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 3; c.lineJoin = 'round';
+      const ring = (n, len, w, off, alpha) => {
+        c.fillStyle = col; c.globalAlpha = alpha;
+        for (let k = 0; k < n; k++) { c.save(); c.rotate(off + k / n * 6.2832); c.beginPath(); c.moveTo(0, -8); c.quadraticCurveTo(w, -len * .55, 0, -len); c.quadraticCurveTo(-w, -len * .55, 0, -8); c.closePath(); c.fill(); c.globalAlpha = 1; c.stroke(); c.globalAlpha = alpha; c.restore(); }
+        c.globalAlpha = 1;
+      };
+      ring(12, 96, 22, .26, .5); ring(8, 78, 32, 0, .75); ring(8, 52, 22, .39, 1);
+      c.fillStyle = '#ffd23f'; c.beginPath(); c.arc(0, 0, 15, 0, 6.283); c.fill(); c.stroke();
+      c.fillStyle = col; for (let k = 0; k < 8; k++) { const a = k * .7854; c.beginPath(); c.arc(Math.cos(a) * 8, Math.sin(a) * 8, 2.2, 0, 6.283); c.fill(); }
+      c.restore();
+      c.fillStyle = col; c.beginPath(); c.arc(x + sp2 / 2, y + sp2 * .43 * 0, 5, 0, 6.283); c.fill();
+    }
+    return;
+  }
+  if (kind === 'himal') { // rows of snow-capped peaks
+    const rnd = mulberry(23);
+    for (let base = 150, row = 0; base < N + 200; base += 200, row++) {
+      const pk = []; for (let x = -60 + (row % 2 ? 50 : 0); x < N + 120; x += 105 + rnd() * 20) pk.push({ x, h: 84 + rnd() * 50 + (pk.length % 3 === 1 ? 46 : 0) });
+      pk.sort((a, b) => a.h - b.h);
+      c.fillStyle = colorAt(i++, 0, base); c.globalAlpha = .55; c.fillRect(0, base, N, 12); c.globalAlpha = 1;
+      for (const p of pk) {
+        const w = p.h * .78; c.fillStyle = colorAt(i++, p.x, base); c.beginPath(); c.moveTo(p.x - w, base); c.lineTo(p.x, base - p.h); c.lineTo(p.x + w, base); c.closePath(); c.fill();
+        const cl = p.h * .4, cw = w * .4; c.fillStyle = '#ffffff'; c.beginPath(); c.moveTo(p.x, base - p.h); c.lineTo(p.x - cw, base - p.h + cl); c.lineTo(p.x - cw * .45, base - p.h + cl * .78); c.lineTo(p.x, base - p.h + cl * 1.05);
+        c.lineTo(p.x + cw * .5, base - p.h + cl * .78); c.lineTo(p.x + cw, base - p.h + cl); c.closePath(); c.fill();
+      }
     }
     return;
   }
@@ -1901,6 +2163,62 @@ function defaultDesign(g) {
       c.fillStyle = '#16121f'; c.fillRect(0, yHm, N, N);                          // hem band
       c.strokeStyle = '#ff9a2e'; c.lineWidth = 6; c.setLineDash([22, 16]); c.beginPath(); c.moveTo(0, yHm + 26); c.lineTo(N, yHm + 26); c.stroke(); c.setLineDash([]);
       scatter(g, 4, seed + 9, (x, y, i, r) => { if (y > yT + 20 && y < yB - 50) emoji(c, i % 2 ? '📜' : '🌀', x, y, 84, (r() - .5) * .5); });
+      c.restore();
+    }
+  } else if (id === 'kurta' || id === 'gunyu' || id === 'patasi') {
+    const yPx = y => (1 - ((y - g.F.cy) / g.F.S + .5)) * N;
+    const dia = (x, y, r, col) => { c.fillStyle = col; c.beginPath(); c.moveTo(x, y - r); c.lineTo(x + r * .75, y); c.lineTo(x, y + r); c.lineTo(x - r * .75, y); c.closePath(); c.fill(); };
+    const flo = (x, y, r, col, ctr) => { c.fillStyle = col; for (let k = 0; k < 5; k++) { const a = k * 1.2566 - 1.57; c.beginPath(); c.arc(x + Math.cos(a) * r, y + Math.sin(a) * r, r * .72, 0, 6.283); c.fill(); } c.fillStyle = ctr; c.beginPath(); c.arc(x, y, r * .6, 0, 6.283); c.fill(); };
+    const gold = (y0, y1) => { const gr = c.createLinearGradient(0, y0, 0, y1); gr.addColorStop(0, '#9a6a12'); gr.addColorStop(.5, '#fff0a8'); gr.addColorStop(1, '#d9a22e'); return gr; };
+    if (id === 'kurta') {
+      fillGrad(g, '#27b5a5', '#4fd1c0');
+      c.save(); c.clip(g.clip);
+      const yT = yPx(.31), yY = yPx(.19), yH = yPx(-.15);
+      // hem border (magenta with gold lines and little diamonds)
+      c.fillStyle = '#d6336c'; c.fillRect(0, yH, N, N); c.fillStyle = gold(yH, yH + 12); c.fillRect(0, yH, N, 10); c.fillRect(0, yH + 58, N, 6);
+      for (let x = 20; x < N; x += 52) dia(x, yH + 34, 14, '#ffe58a');
+      // embroidered yoke
+      c.fillStyle = '#fff3d6'; c.fillRect(0, 0, N, yY);
+      c.fillStyle = '#d6336c'; c.beginPath(); c.moveTo(0, yY); for (let x = 0; x <= N; x += 48) { c.lineTo(x + 24, yY + 26); c.lineTo(x + 48, yY); } c.closePath(); c.fill();
+      c.fillStyle = gold(yY - 10, yY + 4); c.fillRect(0, yY - 8, N, 8);
+      c.fillStyle = '#d6336c'; for (let x = 24; x < N; x += 48) dia(x, yT + (yY - yT) * .68, 14, '#d6336c');
+      for (let x = 48; x < N; x += 48) dia(x, yT + (yY - yT) * .68, 7, '#f4b400');
+      // neckline and placket
+      c.strokeStyle = '#f4b400'; c.lineWidth = 9; c.lineCap = 'round'; c.beginPath(); c.arc(N / 2, yT - 10, 78, .1, Math.PI - .1); c.stroke();
+      c.lineWidth = 5; c.beginPath(); c.moveTo(N / 2, yT + 66); c.lineTo(N / 2, yH - 6); c.stroke();
+      [0, 1, 2, 3].forEach(k => { c.fillStyle = '#f4b400'; c.beginPath(); c.arc(N / 2 + 16, yY + 60 + k * 90, 9, 0, 6.283); c.fill(); });
+      // small gold motifs on the tunic
+      scatter(g, 22, seed + 11, (x, y) => { if (y > yY + 40 && y < yH - 30 && Math.abs(x - N / 2) > 40) flo(x, y, 8, '#ffd45a', '#d6336c'); });
+      c.restore();
+    } else if (id === 'gunyu') {
+      fillGrad(g, '#f4b400', '#e8a000');
+      c.save(); c.clip(g.clip);
+      const yT = yPx(.31), yW = yPx(.125), yH = yPx(-.31);
+      // skirt motifs
+      for (let row = 0, y = yW + 90; y < yH - 40; y += 84, row++) for (let x = row % 2 ? 30 : 70; x < N; x += 80) { dia(x, y, 17, '#b3122e'); c.fillStyle = '#1f8a4c'; c.beginPath(); c.arc(x, y, 4.5, 0, 6.283); c.fill(); }
+      // decorative hem border
+      c.fillStyle = '#1f8a4c'; c.fillRect(0, yH, N, N); c.fillStyle = '#b3122e'; c.fillRect(0, yH, N, 16); c.fillRect(0, yH + 92, N, 12);
+      c.fillStyle = '#ffe58a'; for (let x = 0; x < N; x += 46) { c.beginPath(); c.moveTo(x, yH + 18); c.lineTo(x + 23, yH + 56); c.lineTo(x + 46, yH + 18); c.closePath(); c.fill(); }
+      for (let x = 23; x < N; x += 46) { c.fillStyle = '#ffffff'; c.beginPath(); c.arc(x, yH + 72, 5, 0, 6.283); c.fill(); }
+      // cholo (fitted blouse)
+      c.fillStyle = '#a31535'; c.fillRect(0, 0, N, yW);
+      c.strokeStyle = '#ffd45a'; c.lineWidth = 8; c.lineCap = 'round'; c.beginPath(); c.moveTo(N / 2 - 118, 8); c.quadraticCurveTo(N / 2, yT + 130, N / 2 + 118, 8); c.stroke();
+      c.lineWidth = 3; c.beginPath(); c.moveTo(N / 2 - 128, 8); c.quadraticCurveTo(N / 2, yT + 150, N / 2 + 128, 8); c.stroke();
+      scatter(g, 12, seed + 12, (x, y) => { if (y < yW - 30 && y > yT + 120) { c.fillStyle = '#ffd45a'; sparkle(c, x, y, 9); } });
+      // patuka (waist sash) with a hanging end
+      c.fillStyle = '#e8262f'; c.fillRect(0, yW - 34, N, 68);
+      c.fillStyle = '#ffd45a'; c.fillRect(0, yW - 30, N, 5); c.fillRect(0, yW + 25, N, 5); c.fillStyle = '#ffffff'; for (let x = 14; x < N; x += 32) { c.beginPath(); c.arc(x, yW, 4.5, 0, 6.283); c.fill(); }
+      c.fillStyle = '#e8262f'; c.beginPath(); c.moveTo(N / 2 + 80, yW + 30); c.lineTo(N / 2 + 150, yW + 30); c.lineTo(N / 2 + 160, yW + 250); c.lineTo(N / 2 + 70, yW + 250); c.closePath(); c.fill();
+      c.fillStyle = '#ffd45a'; c.fillRect(N / 2 + 72, yW + 200, 88, 8); c.fillRect(N / 2 + 74, yW + 90, 80, 6);
+      for (let k = 0; k < 7; k++) { c.fillStyle = k % 2 ? '#ffd45a' : '#e8262f'; c.fillRect(N / 2 + 72 + k * 13, yW + 250, 8, 40); }
+      c.restore();
+    } else {
+      fillGrad(g, '#17121c', '#0d0a11');
+      c.save(); c.clip(g.clip);
+      const yT = yPx(.31), yH = yPx(-.31);
+      c.fillStyle = '#c8102e'; c.fillRect(0, yT - 10, N, 40);                 // thin red band at the top edge
+      c.fillRect(0, yH, N, N);                                              // bold red hem border
+      c.fillStyle = '#0d0a11'; c.fillRect(0, yH + 30, N, 5); c.fillRect(0, yH + 50, N, 5);
       c.restore();
     }
   } else {
@@ -2090,7 +2408,9 @@ function mini(def) {
 const dressesEl = $('#dresses');
 DRESSES.forEach(d => {
   const b = document.createElement('button'); b.className = 'chip'; b.dataset.id = d.id; b.setAttribute('aria-pressed', 'false');
-  b.appendChild(mini(d)); const s = document.createElement('span'); s.textContent = d.name; b.appendChild(s); dressesEl.appendChild(b);
+  b.appendChild(mini(d)); const s = document.createElement('span');
+  if (d.short) { const lf = document.createElement('span'), ls = document.createElement('span'); lf.className = 'lf'; ls.className = 'ls'; lf.textContent = d.name; ls.textContent = d.short; s.append(lf, ls); } else s.textContent = d.name;
+  b.appendChild(s); dressesEl.appendChild(b);
   b.addEventListener('click', () => { active().setOutfit(d.id); saveState(); refreshUI(); });
 });
 const palEl = $('#palette'), myRow = $('#myRow'), myCol = $('#myCol');
@@ -2197,7 +2517,11 @@ function refreshSizeUI() {
 }
 $$('.brush-range').forEach(r => r.addEventListener('input', () => setBrushSize(r.value)));
 function setStkSize(v) { painter.stickerSize = clamp(Math.round(+v || 130), 40, 240); const r = $('#stkRange'); if (+r.value !== painter.stickerSize) r.value = painter.stickerSize; refreshStkPrev(); }
-function refreshStkPrev() { const s = $('#stkPrev'); s.textContent = painter.sticker; s.style.fontSize = (painter.stickerSize * .31) + 'px'; }
+function refreshStkPrev() {
+  const s = $('#stkPrev'); s.style.fontSize = (painter.stickerSize * .31) + 'px';
+  if (painter.sticker === 'NPFLAG') { const h = Math.round(painter.stickerSize * .31 * 1.15), fc = flagCanvas(h); fc.style.cssText = 'width:' + fc.width + 'px;height:' + fc.height + 'px;display:block'; s.replaceChildren(fc); }
+  else if (s.textContent !== painter.sticker || s.firstElementChild) s.textContent = painter.sticker;
+}
 $('#stkRange').addEventListener('input', () => setStkSize($('#stkRange').value));
 $('#stkMinus').addEventListener('click', () => setStkSize(painter.stickerSize - 14));
 $('#stkPlus').addEventListener('click', () => setStkSize(painter.stickerSize + 14));
@@ -2224,8 +2548,8 @@ $$('[data-brush]').forEach(b => b.addEventListener('click', () => { painter.brus
 }
 const stickerRow = $('#stickerRow');
 STICKERS.forEach(s => {
-  const b = document.createElement('button'); b.className = 'btn sticker'; b.textContent = s; b.dataset.stk = s; b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', 'Sticker ' + s);
-  b.addEventListener('click', () => { painter.sticker = s; painter.tool = 'sticker'; refreshTools(); toast('Tap the dress to stamp ' + s); });
+  const b = document.createElement('button'); b.className = 'btn sticker'; if (s === 'NPFLAG') { const fc = flagCanvas(34); fc.style.cssText = 'width:' + fc.width + 'px;height:' + fc.height + 'px;display:block'; b.appendChild(fc); } else b.textContent = s; b.dataset.stk = s; b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-label', 'Sticker ' + stickerLabel(s));
+  b.addEventListener('click', () => { painter.sticker = s; painter.tool = 'sticker'; refreshTools(); toast('Tap the dress to stamp ' + (s === 'NPFLAG' ? 'the Nepal flag' : s)); });
   stickerRow.appendChild(b);
 });
 function doFill() {
@@ -2436,7 +2760,40 @@ const audio = (() => {
     if (s === 0 || s === 8) tone('triangle', mtof(bar % 2 ? 45 : 38), t, sp * 7, .16, 420, .02);
     const m = N_MEL[bar][s]; if (m) { tone('sawtooth', mtof(m), t, sp * 2.4, .09, 1900, .004); tone('triangle', mtof(m + 12), t, sp * 1.3, .05); }
   }
-  const TR = { pop: { bpm: 126, play: playPop }, dream: { bpm: 84, play: playDream }, dance: { bpm: 132, play: playDance }, kpop: { bpm: 128, play: playKpop }, ninja: { bpm: 94, play: playNinja } };
+  // ---- track 6: madal (hand-drum groove in a 3+3+2 feel, bansuri-like flute, original A-minor pentatonic tune) ----
+  function dhin(t, v) {
+    const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(158, t); o.frequency.exponentialRampToValueAtTime(84, t + .16);
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.001, t + .42); o.connect(g); g.connect(master); o.start(t); o.stop(t + .45);
+    tone('triangle', 316, t, .1, v * .1); nz(t, .05, v * .3, 'lowpass', 800);
+  }
+  function ta(t, v) { nz(t, .05, v, 'bandpass', 3200); tone('triangle', 640, t, .06, v * .22); }
+  function tin(t, v) { tone('sine', 980, t, .14, v * .2); nz(t, .03, v * .5, 'highpass', 5000); }
+  function flute(m, t, dur, vol) {
+    const f = mtof(m), o = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), g2 = ctx.createGain(), lfo = ctx.createOscillator(), lg = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = f; o2.type = 'triangle'; o2.frequency.value = f * 2; g2.gain.value = .2;
+    lfo.frequency.value = 5.3; lg.gain.value = f * .006; lfo.connect(lg); lg.connect(o.frequency); lg.connect(o2.frequency);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .07); g.gain.setValueAtTime(vol, t + Math.max(.08, dur - .12)); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); o2.connect(g2); g2.connect(g); g.connect(master);
+    o.start(t); o2.start(t); lfo.start(t); o.stop(t + dur + .03); o2.stop(t + dur + .03); lfo.stop(t + dur + .03);
+    nz(t, .09, vol * .1, 'bandpass', f * 2);
+  }
+  const M_MEL = [
+    [[0, 76, 3], [3, 79, 3], [6, 81, 2], [8, 79, 3], [11, 76, 3], [14, 74, 2]],
+    [[0, 72, 3], [3, 74, 3], [6, 76, 2], [8, 74, 3], [11, 72, 3], [14, 69, 2]],
+    [[0, 76, 3], [3, 76, 3], [6, 79, 2], [8, 81, 3], [11, 84, 3], [14, 81, 2]],
+    [[0, 79, 3], [3, 76, 3], [6, 74, 2], [8, 76, 7]]];
+  const M_ROOT = [45, 45, 43, 40];
+  function playMadal(st, t) {
+    const s = st % 16, bar = (st / 16 | 0) % 4;
+    if (s === 0) dhin(t, .95); else if (s === 8) dhin(t, .8); else if (s === 6 || s === 14) dhin(t, bar === 3 && s === 14 ? .9 : .5);
+    if (s === 3 || s === 11) ta(t, .34); if (s === 4 || s === 12) tin(t, .22);
+    if (s % 4 === 1) ta(t, .09);
+    if (bar === 3 && s >= 12 && s !== 14) ta(t, .22 + (s - 12) * .06);
+    if (s % 2 === 0) nz(t, .025, .035, 'highpass', 8500);
+    if (s === 0) { tone('sine', mtof(M_ROOT[bar]), t, sp * 15, .17, 0, .03); tone('triangle', mtof(M_ROOT[bar] + 7), t, sp * 15, .035, 700, .05); }
+    for (const n of M_MEL[bar]) if (n[0] === s) flute(n[1], t, sp * n[2] + .04, .15);
+  }
+  const TR = { pop: { bpm: 126, play: playPop }, dream: { bpm: 84, play: playDream }, dance: { bpm: 132, play: playDance }, kpop: { bpm: 128, play: playKpop }, ninja: { bpm: 94, play: playNinja }, madal: { bpm: 104, play: playMadal } };
   function tick() { while (nextT < ctx.currentTime + .15) { TR[track].play(step, nextT); nextT += sp; step = (step + 1) % 64; } }
   return {
     start() { if (!init()) return; try { ctx.resume(); } catch (e) { } if (playing) return; playing = true; step = 0; nextT = ctx.currentTime + .08; timer = setInterval(tick, 25); },
@@ -2545,6 +2902,14 @@ function updateThemeFx(t) {
     for (let i = 0; i < c.n; i++) { const i3 = i * 3; P[i3 + 1] = B[i3 + 1] + Math.max(0, Math.sin(t * 2.6 * k + c.sd[i])) * .22; P[i3] = B[i3] + Math.sin(t * 1.6 * k + c.sd[i]) * .06; }
     c.geo.attributes.position.needsUpdate = true;
     stg.pillarMat.color.setHSL((t * .08) % 1, .9, .6);
+  } else if (themeId === 'tihar' && stg.diyo) {
+    const d = stg.diyo, dm = d.dm, hc = d.hc;
+    for (let i = 0; i < d.n; i++) {
+      const fl = 1 + Math.sin(t * 9 * k + d.ph[i]) * .14 + Math.sin(t * 14.7 * k + d.ph[i] * 2) * .07;
+      dm.position.set(d.dx[i], .045, d.dz[i]); dm.scale.set(1 + (1 - fl) * .5, fl, 1 + (1 - fl) * .5); dm.updateMatrix(); d.flames.setMatrixAt(i, dm.matrix);
+      const b = .55 + .45 * fl; hc[i * 3] = b; hc[i * 3 + 1] = .65 * b; hc[i * 3 + 2] = .2 * b;
+    }
+    d.flames.instanceMatrix.needsUpdate = true; d.halo.attributes.color.needsUpdate = true;
   } else if (themeId === 'ninja' && stg.lanterns) {
     stg.lanterns.forEach(o => { o.L.rotation.z = Math.sin(t * 1.2 * k + o.i) * .07; const s = 1.05 + Math.sin(t * 3 * k + o.i * 2) * .06; o.sp.scale.set(s, s, 1); });
   }
@@ -2558,7 +2923,7 @@ function updateTwinkle(t) {
 /* ============================================================================
    Runway control: stage theme + music in one compact popover
    ============================================================================ */
-const TRACKS = [['pop', '🎤', 'Pop'], ['dream', '🌙', 'Dreamy'], ['dance', '🪩', 'Dance'], ['kpop', '💃', 'K-pop dance'], ['ninja', '🥁', 'Ninja']];
+const TRACKS = [['pop', '🎤', 'Pop'], ['dream', '🌙', 'Dreamy'], ['dance', '🪩', 'Dance'], ['kpop', '💃', 'K-pop dance'], ['ninja', '🥁', 'Ninja'], ['madal', '🥁', 'Madal']];
 const ctlPop = $('#ctlPop'), ctlBtn = $('#ctlBtn');
 function closeCtl() { ctlPop.classList.add('hidden'); ctlBtn.setAttribute('aria-expanded', 'false'); }
 function mkOpt(row, e, label, attr, val, onClick) {
