@@ -18,12 +18,13 @@ You are given a snapshot of each model on the runway plus the game's names for w
 Write the announcer's lines, which will be read aloud by a text-to-speech voice.
 
 Rules:
-- 3 to 5 short sentences in total, under 90 words. Warm, excited, and kind, like a real runway host.
-- Introduce each model by her name (or "our designer" if no name is given), then describe her outfit: use the dress name exactly as given, and mention the colors, patterns, and stickers you can actually see on the dress, plus her hairstyle and one or two accessories.
+- 2 or 3 short sentences in total, under 45 words (with two models, up to 4 sentences and 60 words). Warm, excited, and kind, like a real runway host.
+- Introduce each model by her name (or "our designer" if no name is given), then describe her outfit: use the dress name exactly as given, and mention its main color and one pattern or sticker you can actually see, plus one accessory or her hairstyle. Pick the highlights; do not list everything.
 - Treat traditional outfits (for example Kurta Suruwal, Gunyu Cholo, Haku Patasi, Hanbok) with respect and name them correctly.
 - Only talk about clothes, hair, accessories, and the show. Never comment on bodies, weight, skin, or faces.
 - If there are two models, introduce both and end with a line about them walking together.
-- Plain sentences only: no emoji, no lists, no stage directions, no quotation marks.`;
+- Plain sentences only: no emoji, no lists, no stage directions, no quotation marks.
+- Everything you write is read aloud to the children. Never add notes, explanations, or questions, and never mention pictures, snapshots, or missing information. If a picture is missing, just use the names you were given.`;
 
 export default {
   async fetch(req, env) {
@@ -135,7 +136,7 @@ function describe(models, theme) {
 }
 function templateText(models, theme) {
   const who = m => m.name || 'our designer';
-  const parts = [`Welcome to the ${theme || 'Fashion Studio'} runway!`];
+  const parts = [`Welcome to the ${theme || 'Fashion Studio'} runway!`]; // keep in sync with templateText in ../index.html
   models.forEach(m => {
     const acc = m.accessories.length ? `, with ${m.accessories.slice(0, 2).join(' and ')}` : '';
     parts.push(`Here comes ${who(m)} in a beautiful ${m.dress}${acc}${m.hairstyle ? ', with her hair in a ' + m.hairstyle.toLowerCase() : ''}!`);

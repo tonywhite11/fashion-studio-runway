@@ -809,6 +809,7 @@ const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)')
 if (mq && mq.addEventListener) mq.addEventListener('change', () => rebuildBackgrounds());
 
 const FACE_FILL = .6;
+const BEAM_K = .35; // light-beam cones are see-through glow; stronger washed light outfits out to white
 const hemi = new THREE.HemisphereLight(0xffffff, 0xffc4e4, .9); scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xffffff, 1.5);
 sun.position.set(2.2, 4, 3); sun.castShadow = true;
@@ -1059,7 +1060,7 @@ function drawBackdrop() {
     }
   }
   // spotlights (cheap: no shadows) + visible light cones
-  stg.coneMat = new THREE.MeshBasicMaterial({ color: '#fff3d6', transparent: true, opacity: .09, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+  stg.coneMat = new THREE.MeshBasicMaterial({ color: '#fff3d6', transparent: true, opacity: .09 * BEAM_K, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.FrontSide });
   [[-3.4, 6.5, 3.5, '#ffd9f0', -.3, 0, 1.6], [3.4, 6.5, 3.5, '#d9f4ff', .3, 0, 1.6], [0, 6.8, -3, '#ffffff', 0, 0, -1.5]].forEach(a => {
     const sp = new THREE.SpotLight(a[3], 0, 0, .5, .7, 1.6); sp.position.set(a[0], a[1], a[2]);
     sp.target.position.set(a[4], 0, a[6]); scene.add(sp, sp.target); spots.push(sp);
@@ -1260,7 +1261,7 @@ function applyTheme(id) {
   stg.rwMat.color.set(T.run); stg.rwMat.roughness = T.runR; stg.rwMat.metalness = T.runM;
   stg.stripeMat.color.set(T.stripe); stg.floorMat.color.set(T.floor); stg.archMat.color.set(T.arch);
   if (T.curt) stg.curtMat.color.set(T.curt); stg.curtG.visible = !!T.curt;
-  spots.forEach((sp, i) => sp.color.set(T.spot[i])); stg.coneMat.color.set(T.cone); stg.coneMat.opacity = T.coneOp; stg.bdMat.toneMapped = T.lum >= 1; stg.bdMat.needsUpdate = true;
+  spots.forEach((sp, i) => sp.color.set(T.spot[i])); stg.coneMat.color.set(T.cone); stg.coneMat.opacity = T.coneOp * BEAM_K; stg.bdMat.toneMapped = T.lum >= 1; stg.bdMat.needsUpdate = true;
   twinkle.pts.visible = !!T.twink; if (T.twink) twinkle.pts.material.color.set(T.twink);
   setFall(T.fall);
   for (const k in stg.decor) stg.decor[k].visible = k === id;
