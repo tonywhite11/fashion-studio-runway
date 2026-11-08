@@ -655,7 +655,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-const API_BASE = (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ? 'http://127.0.0.1:8787' : 'https://fashion-studio-api.REPLACE_ME.workers.dev';
+const API_BASE = (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) ? 'http://127.0.0.1:8787' : 'https://fashion-studio-api.fashion-studio-api.workers.dev';
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
