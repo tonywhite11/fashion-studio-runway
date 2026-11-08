@@ -577,7 +577,7 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
       <section class="help-sec"><h3>✨ Runway Show!</h3><ul>
         <li><span class="ic">✨</span><span>Tap <b>Runway Show!</b> and your model walks the runway and strikes a pose!</span></li>
         <li><span class="ic">🎭</span><span>Pick the <b>stage</b> (like Tihar Lights or Idol Concert) and the <b>music</b>.</span></li>
-        <li><span class="ic">👏</span><span>After 3 walks she takes a bow! Tap <b>🔁 Encore!</b> to watch the show again.</span></li>
+        <li><span class="ic">👏</span><span>At the end of the show she takes a bow! Tap <b>🔁 Encore!</b> to watch the show again.</span></li>
         <li><span class="ic">⬅️</span><span><b>Back to Studio</b> takes you back to designing.</span></li>
         <li><span class="ic">👯</span><span>In 🎭, <b>Walk with a friend</b> picks an outfit (like your sister's!) to walk the runway next to you.</span></li>
         <li><span class="ic">🎙️</span><span>The <b>Announcer</b> tells everyone about your outfit while you walk. Switch it On or Off in 🎭. It needs the internet to look at your outfit.</span></li>
@@ -2988,7 +2988,7 @@ muteBtn.addEventListener('click', () => { muted = !muted; audio.setMuted(muted);
 /* ============================================================================
    Runway show
    ============================================================================ */
-const SHOW_LAPS = 3; // walks before the finale (about 50 s)
+const SHOW_LAPS = 2; // up the runway, back down, up again, then the finale (about 30 s)
 const show = { on: false, laps: 0, poseId: 0, nextPose: 0, state: 'walkIn', t: 0, z: -5, yaw: 0, phase: 0, flashes: 0, y0: 0, camMode: 'orbit', saved: null, flashBoost: 0, camT: 0, bpmT: 0, duo: false, dx: 0, dz: 0, rmax: 0, partner: null, pyaw: 0, py0: 0 };
 const appEl = $('#app'); const fx = $('#fx');
 function burst(n = 4) {
