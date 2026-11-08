@@ -278,6 +278,20 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
   position:fixed;inset:0;z-index:50;background:rgba(30,10,50,.78);display:flex;align-items:center;justify-content:center;padding:var(--s4);
   backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
 }
+/* how to play */
+.card.help{width:min(94vw,900px);align-items:stretch;gap:var(--s3);padding:var(--s4) var(--s4) var(--s3)}
+.help-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s2);position:sticky;top:calc(-1 * var(--s4));z-index:2;background:var(--surface);margin:calc(-1 * var(--s4)) calc(-1 * var(--s4)) 0;padding:var(--s4) var(--s4) var(--s2)}
+.help-head h2{margin:0;font-size:1.5rem;font-weight:700}
+.help-intro{margin:0;font-size:1.05rem;font-weight:500;line-height:1.4}
+.help-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:var(--s3)}
+.help-sec{background:var(--surface2);border:2px solid var(--line);border-radius:var(--r);padding:var(--s3) var(--s4)}
+.help-sec h3{margin:0 0 6px;font-size:1.12rem;font-weight:700;color:var(--accent)}
+.help-sec ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.help-sec li{display:flex;gap:10px;align-items:flex-start;font-size:1rem;line-height:1.35;font-weight:500}
+.help-sec li .ic{flex:none;min-width:30px;text-align:center;font-size:1.3rem;line-height:1.1}
+.help-sec li b{font-weight:700}
+.help .btn.go{align-self:center;min-width:220px;font-size:1.2rem}
+@media (max-width: 520px){ .help-sec li{font-size:.95rem} .help-head h2{font-size:1.25rem} }
 .card{
   background:var(--surface);border-radius:24px;padding:var(--s4);max-width:min(94vw,820px);max-height:94dvh;display:flex;flex-direction:column;gap:var(--s3);
   align-items:center;box-shadow:0 20px 60px rgba(0,0,0,.5);overflow:auto;
@@ -362,6 +376,7 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
   <header>
     <h1>Fashion Studio Runway</h1>
     <div class="hright">
+      <button class="iconbtn" id="helpBtn" aria-label="How to play" title="How to play">❓</button>
       <button class="iconbtn" id="muteBtn" aria-label="Mute music" title="Music on/off">🔊</button>
       <button class="iconbtn" id="nameBtn" aria-label="Settings: your name" aria-expanded="false" title="Your name">✏️</button>
     </div>
@@ -482,6 +497,63 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
       <button class="btn primary" id="photoSave">💾 Save</button>
       <button class="btn" id="photoClose">Close</button>
     </div>
+  </div>
+</div>
+<div class="overlay hidden" id="helpOverlay" role="dialog" aria-label="How to play" aria-modal="true">
+  <div class="card help">
+    <div class="help-head"><h2>❓ How to Play</h2><button class="cp-x" id="helpClose" aria-label="Close how to play">✕</button></div>
+    <p class="help-intro">Welcome, designer! ✨ Pick a dress, decorate it any way you like, style your model, then send her down the runway!</p>
+    <div class="help-grid">
+      <section class="help-sec"><h3>1️⃣ Pick a dress</h3><ul>
+        <li><span class="ic">👗</span><span>Tap a dress at the <b>top</b> (like Ballgown or Kurta Suruwal). Your model puts it on right away.</span></li>
+        <li><span class="ic">💾</span><span>Every dress keeps its own drawing, so you can switch and come back later.</span></li>
+      </ul></section>
+      <section class="help-sec"><h3>2️⃣ Decorate the dress</h3><ul>
+        <li><span class="ic">☝️</span><span>Draw on the <b>big dress picture</b> with your finger. It shows up on your model!</span></li>
+        <li><span class="ic">🔴</span><span>Tap a <b>color circle</b> to change color.</span></li>
+        <li><span class="ic">🎨</span><span>The <b>rainbow circle</b> opens the color wheel for ANY color. Slide <b>Dark ↔ Light</b> to make it darker or lighter.</span></li>
+        <li><span class="ic">＋</span><span><b>Add to my colors</b> saves a color you love (up to 8). Tap its little <b>✕</b> to remove it.</span></li>
+        <li><span class="ic">↩️</span><span><b>Undo</b> takes back your last step. Tap it again to go back more.</span></li>
+        <li><span class="ic">🗑️</span><span><b>Clear</b> wipes the dress clean. Oops? Tap <b>Undo</b> to get it back!</span></li>
+      </ul></section>
+      <section class="help-sec"><h3>🎨 Paint tab</h3><ul>
+        <li><span class="ic">✏️</span><span><b>Brush</b> paints with your color. <b>Rainbow</b> 🌈 changes color as you draw. <b>Glitter</b> ✨ sparkles!</span></li>
+        <li><span class="ic">🧽</span><span><b>Eraser</b> rubs out what you drew.</span></li>
+        <li><span class="ic">💗</span><span><b>Brush type</b> paints lines, spray 💨, hearts 💗, stars ⭐ or glowing dots 🔆.</span></li>
+        <li><span class="ic">↔️</span><span>Slide <b>Brush size</b> to make it thin or thick.</span></li>
+        <li><span class="ic">🪣</span><span><b>Fill dress</b> colors the whole dress. The 🌅 🌊 🍭 🍃 buttons fill it with two colors that blend.</span></li>
+      </ul></section>
+      <section class="help-sec"><h3>🌟 Fun tab</h3><ul>
+        <li><span class="ic">🌸</span><span>Tap a <b>pattern</b> (dots, stars, Dhaka, Himalaya...) to cover the dress. It uses the color you picked.</span></li>
+        <li><span class="ic">⭐</span><span><b>Stickers:</b> tap one, then <b>tap the dress</b> to stick it on. Tap again for more!</span></li>
+        <li><span class="ic">🔍</span><span>Slide <b>Sticker size</b> before you stamp. Use <b>− ＋</b> to resize the sticker you just placed.</span></li>
+      </ul></section>
+      <section class="help-sec"><h3>👧 Look tab</h3><ul>
+        <li><span class="ic">💇</span><span>Change her <b>skin</b>, <b>eyes</b>, <b>hair color</b> and <b>hairstyle</b>.</span></li>
+        <li><span class="ic">😊</span><span><b>Face:</b> happy, wink, confident, fierce, surprised or singing.</span></li>
+        <li><span class="ic">👑</span><span><b>Accessories:</b> tap to put on, tap again to take off. Mix as many as you want!</span></li>
+        <li><span class="ic">👠</span><span>Pick a <b>shoe color</b>, then flats or boots.</span></li>
+        <li><span class="ic">⬇️</span><span>Use the little buttons at the top of the Look tab to jump to a section.</span></li>
+      </ul></section>
+      <section class="help-sec"><h3>🧍 Your model</h3><ul>
+        <li><span class="ic">👆</span><span><b>Drag</b> on your model to turn her around. <b>Pinch</b> to zoom in and out.</span></li>
+        <li><span class="ic">🔄</span><span>Turns her back to face you.</span></li>
+        <li><span class="ic">📸</span><span>Takes a photo! Tap <b>💾 Save</b> to keep it (on iPad, choose <b>Save Image</b>).</span></li>
+        <li><span class="ic">👗</span><span><b>My Closet:</b> tap <b>＋ Save this outfit</b> to keep your whole look. Tap an outfit to wear it again. Tap ✕ twice to delete one.</span></li>
+      </ul></section>
+      <section class="help-sec"><h3>✨ Runway Show!</h3><ul>
+        <li><span class="ic">✨</span><span>Tap <b>Runway Show!</b> and your model walks the runway and strikes a pose!</span></li>
+        <li><span class="ic">🎭</span><span>Pick the <b>stage</b> (like Tihar Lights or Idol Concert) and the <b>music</b>.</span></li>
+        <li><span class="ic">⬅️</span><span><b>Back to Studio</b> takes you back to designing.</span></li>
+      </ul></section>
+      <section class="help-sec"><h3>🔝 Top buttons</h3><ul>
+        <li><span class="ic">❓</span><span>Opens this help screen any time.</span></li>
+        <li><span class="ic">🔊</span><span>Turns the music on or off.</span></li>
+        <li><span class="ic">✏️</span><span>Type your designer name. It shows on the runway!</span></li>
+        <li><span class="ic">💡</span><span>Everything saves by itself. You don't need to press save!</span></li>
+      </ul></section>
+    </div>
+    <button class="btn primary big go" id="helpGo">Let's play! ✨</button>
   </div>
 </div>
 <div class="overlay hidden" id="closetOverlay" role="dialog" aria-label="My closet">
@@ -2994,6 +3066,19 @@ function takePhoto() {
   setTimeout(() => $('#photoOverlay').classList.remove('hidden'), 280);
 }
 $('#photoBtn').addEventListener('click', takePhoto);
+
+/* How to Play: ❓ button; opens by itself the first time the game is played on a device */
+const help = (() => {
+  const ov = $('#helpOverlay');
+  const open = () => { ov.classList.remove('hidden'); ov.querySelector('.card').scrollTop = 0; };
+  const close = () => { if (ov.classList.contains('hidden')) return false; ov.classList.add('hidden'); store.set('tfs.v1.seenHelp', '1'); return true; };
+  $('#helpBtn').addEventListener('click', open);
+  $('#helpClose').addEventListener('click', close);
+  $('#helpGo').addEventListener('click', close);
+  ov.addEventListener('pointerdown', e => { if (e.target === ov) close(); });
+  if (!store.get('tfs.v1.seenHelp')) open();
+  return { open, close };
+})();
 let photoURL = '';
 const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 $('#photoNote').textContent = IS_IOS ? 'Tap 💾 Save, then "Save Image". Or press and hold the picture.' : 'Click 💾 Save to download your photo';
@@ -3125,7 +3210,7 @@ window.__closet = closet; // test hook
 $('#photoClose').addEventListener('click', () => $('#photoOverlay').classList.add('hidden'));
 $('#photoOverlay').addEventListener('pointerdown', e => { if (e.target.id === 'photoOverlay') $('#photoOverlay').classList.add('hidden'); });
 window.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { if (closeColorPop()) return; if (closet.close()) return; if (window.__closeNamePop && window.__closeNamePop()) return; if (!$('#photoOverlay').classList.contains('hidden')) $('#photoOverlay').classList.add('hidden'); else stopShow(); }
+  if (e.key === 'Escape') { if (closeColorPop()) return; if (help.close()) return; if (closet.close()) return; if (window.__closeNamePop && window.__closeNamePop()) return; if (!$('#photoOverlay').classList.contains('hidden')) $('#photoOverlay').classList.add('hidden'); else stopShow(); }
 });
 
 /* ============================================================================
