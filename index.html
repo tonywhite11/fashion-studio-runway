@@ -809,6 +809,7 @@ const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)')
 if (mq && mq.addEventListener) mq.addEventListener('change', () => rebuildBackgrounds());
 
 const FACE_FILL = .6;
+const DEVICE_VOICE = false; // announcer never falls back to the device's robotic text-to-speech: no recording = no announcement
 const BEAM_K = .35; // light-beam cones are see-through glow; stronger washed light outfits out to white
 const hemi = new THREE.HemisphereLight(0xffffff, 0xffc4e4, .9); scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xffffff, 1.5);
@@ -3288,21 +3289,27 @@ function announce(text, audioUrl, my) {
   showCaption(text);
   ann.safeT = setTimeout(() => finishVoice(my), (text.split(/\s+/).length * .55 + 8) * 1000); // never leave the music ducked
   if (muted) return;
-  if (typeof audioUrl === 'string' && audioUrl.startsWith('data:audio/')) playVoice(audioUrl, my).then(ok => { if (!ok && my === ann.token) speakText(text, my); });
-  else speakText(text, my);
+  const fallback = why => { if (my !== ann.token) return; console.warn('Announcer: ' + why + (DEVICE_VOICE ? ', using the device voice' : ', staying quiet')); if (DEVICE_VOICE) speakText(text, my); else finishVoice(my); };
+  if (typeof audioUrl === 'string' && audioUrl.startsWith('data:audio/')) playVoice(audioUrl, my).then(ok => { if (!ok) fallback('the recorded voice could not be played'); });
+  else fallback('no recorded voice came back');
 }
-function startAnnouncer(payload) {
-  const my = ++ann.token, ac = new AbortController(), tm = setTimeout(() => ac.abort(), 25000); ann.ctl = ac; // Claude + voice usually takes 4-10 s; give it room before falling back
+function startAnnouncer(payload, retry) {
+  const my = retry ? ann.token : ++ann.token, ac = new AbortController(), tm = setTimeout(() => ac.abort(), 25000); ann.ctl = ac; // Claude + voice usually takes 4-10 s
   fetch(API_BASE + '/narrate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ac.signal })
     .then(r => { if (!r.ok) throw new Error('narrate ' + r.status); return r.json(); })
-    .then(d => { clearTimeout(tm); if (!d || typeof d.text !== 'string' || !d.text.trim()) throw new Error('empty'); if (!d.audio) console.warn('Announcer: no recorded voice came back, using the device voice'); announce(d.text.trim(), d.audio, my); })
-    .catch(e => { clearTimeout(tm); console.warn('Announcer: request failed (' + (e && e.name === 'AbortError' ? 'timed out' : e && e.message) + '), using the device voice'); announce(localText(payload), null, my); });
+    .then(d => { clearTimeout(tm); if (!d || typeof d.text !== 'string' || !d.text.trim()) throw new Error('empty'); announce(d.text.trim(), d.audio, my); })
+    .catch(e => {
+      clearTimeout(tm); if (my !== ann.token || !show.on) return;
+      const why = 'request failed (' + (e && e.name === 'AbortError' ? 'timed out' : e && e.message) + ')';
+      if (!retry && !(e && e.name === 'AbortError')) { console.warn('Announcer: ' + why + ', trying once more'); startAnnouncer(payload, true); return; }
+      announce(localText(payload), null, my);
+    });
 }
 function onRunwayTap() { // everything that needs the tap (snapshots, audio and speech unlock) happens right here
   if (show.on) return;
   let payload = null;
   if (ann.on) {
-    primeSpeech();
+    if (DEVICE_VOICE) primeSpeech();
     try { payload = { theme: (THEMES[themeId] || {}).short || '', voice: true, models: captureModels() }; } catch (e) { payload = null; }
     if (!payload) payload = { theme: (THEMES[themeId] || {}).short || '', voice: true, models: [modelInfo(active().cfg, designerName, null)] };
   }
