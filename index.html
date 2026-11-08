@@ -252,6 +252,9 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
 
 /* flash FX */
 .fx{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetti{position:absolute;top:-4%;width:10px;height:16px;border-radius:2px;pointer-events:none;animation:conf 2.8s cubic-bezier(.25,.6,.4,1) forwards}
+@keyframes conf{0%{transform:translate3d(0,0,0) rotate(0)}100%{transform:translate3d(var(--dx),115vh,0) rotate(var(--rot));opacity:.9}}
+@media (prefers-reduced-motion: reduce){.confetti{display:none}}
 .burst{
   position:absolute;width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;
   background:radial-gradient(circle,#fff 0 10%,rgba(255,255,255,.75) 24%,rgba(255,240,200,.2) 45%,transparent 66%);
@@ -273,6 +276,33 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
 .outfit .del{position:absolute;top:-8px;right:-8px;width:40px;height:40px;min-width:0;border-radius:50%;border:3px solid #fff;background:var(--ink);color:var(--surface);font-size:1rem;padding:0;display:grid;place-items:center;z-index:2;cursor:pointer}
 .outfit .del.sure{width:auto;padding:0 12px;border-radius:999px;background:#e11d48;color:#fff;font-weight:700;font-size:.85rem}
 .closet-empty{grid-column:1 / -1;text-align:center;color:var(--muted);font-weight:500;padding:var(--s4) 0;margin:0}
+/* closet: share / get by code */
+.get-box{display:flex;flex-direction:column;gap:6px;background:var(--surface2);border:2px solid var(--line);border-radius:var(--r);padding:var(--s2) var(--s3)}
+.get-box label{font-weight:700;font-size:1.05rem}
+.get-row{display:flex;gap:var(--s2);align-items:stretch}
+.get-row input{flex:1 1 auto;min-width:0;min-height:56px;font:inherit;font-size:1.35rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:center;border-radius:var(--r);border:3px solid var(--line);background:var(--surface);color:var(--ink);padding:0 var(--s2);-webkit-user-select:text;user-select:text}
+.get-row input:focus{outline:none;border-color:var(--accent)}
+.get-row .btn{flex:none;min-height:56px;padding:0 var(--s4)}
+.closet-msg{margin:0;text-align:center;font-weight:600;font-size:1rem;line-height:1.3;padding:var(--s2) var(--s3);border-radius:var(--r);background:var(--surface2);border:2px solid var(--line)}
+.closet-msg.good{border-color:#2fcf5a}
+.closet-msg.bad{border-color:#ff8a1a}
+.share-panel{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:var(--s3);border-radius:var(--r);border:3px solid var(--accent);background:linear-gradient(135deg,color-mix(in srgb,var(--pink) 22%,var(--surface)),color-mix(in srgb,var(--purple) 22%,var(--surface)))}
+.share-panel .sp-t{font-weight:700;font-size:1.15rem}
+.share-panel .sp-code{font-weight:700;font-size:clamp(2.2rem,11vw,3.6rem);letter-spacing:.06em;line-height:1.1;-webkit-user-select:all;user-select:all;word-break:break-all}
+.share-panel .sp-s{font-weight:500;color:var(--muted)}
+.outfit .share{min-height:48px;border-radius:999px;border:2px solid var(--accent);background:var(--surface);color:var(--ink);font-weight:700;font-size:.95rem;cursor:pointer;padding:0 6px}
+.outfit .share:disabled{opacity:.6}
+.outfit .from{position:absolute;top:10px;left:10px;max-width:calc(100% - 20px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:var(--accent);color:#fff;border-radius:999px;font-weight:700;font-size:.78rem;padding:2px 9px;box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
+/* duo picker + announcer caption */
+.duo-row{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.duo-row .btn{flex-direction:column;gap:2px;min-height:56px;min-width:64px;padding:4px var(--s2);font-size:.8rem;line-height:1.1}
+.duo-row .btn.thumb{padding:3px;width:72px;min-width:72px}
+.duo-row .btn.thumb img{width:56px;height:74px;object-fit:cover;border-radius:8px;background:var(--bg2);display:block;pointer-events:none}
+.duo-row .btn.thumb span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.duo-row .e{font-size:1.35rem;line-height:1.2}
+/* announcer text is spoken only; kept off-screen for screen readers (no caption box on the stage) */
+.ann-cap{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;pointer-events:none}
+@media (prefers-reduced-motion: reduce){.ann-cap{transition:none}}
 /* photo overlay */
 .overlay{
   position:fixed;inset:0;z-index:50;background:rgba(30,10,50,.78);display:flex;align-items:center;justify-content:center;padding:var(--s4);
@@ -397,11 +427,13 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
         <button class="round" id="frontBtn" aria-label="Front view" title="Front view">🔄</button>
         <button class="round" id="closetBtn" aria-label="My closet: save and wear outfits" title="My closet">👗</button>
       </div>
-      <div class="stage-ui" id="stageUi"><button class="runway-btn" id="runwayBtn">✨ Runway Show!</button></div>
+      <div class="stage-ui" id="stageUi"><button class="runway-btn" id="runwayBtn">✨ Runway Show!</button><button class="runway-btn hidden" id="encoreBtn">🔁 Encore!</button></div>
       <div class="show-ctl"><button class="round" id="ctlBtn" aria-label="Stage and music" aria-expanded="false" title="Stage &amp; music">🎭</button></div>
       <div class="show-pop hidden" id="ctlPop" role="dialog" aria-label="Stage and music">
         <div><h4>🎨 Stage</h4><div class="prow" id="themeRow"></div></div>
         <div><h4>🎵 Music</h4><div class="prow" id="musicRow"></div></div>
+        <div><h4>👯 Walk with a friend</h4><div class="duo-row" id="duoRow"></div></div>
+        <div><h4>🎙️ Announcer</h4><div class="prow" id="annRow"></div></div>
       </div>
       <div class="toast" id="toast" role="status"></div>
     </section>
@@ -540,11 +572,15 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
         <li><span class="ic">🔄</span><span>Turns her back to face you.</span></li>
         <li><span class="ic">📸</span><span>Takes a photo! Tap <b>💾 Save</b> to keep it (on iPad, choose <b>Save Image</b>).</span></li>
         <li><span class="ic">👗</span><span><b>My Closet:</b> tap <b>＋ Save this outfit</b> to keep your whole look. Tap an outfit to wear it again. Tap ✕ twice to delete one.</span></li>
+        <li><span class="ic">📤</span><span><b>Share</b> on an outfit gives you a secret <b>code</b> to tell your sister. <b>📥 Get an outfit</b> lets you type her code to get her outfit!</span></li>
       </ul></section>
       <section class="help-sec"><h3>✨ Runway Show!</h3><ul>
         <li><span class="ic">✨</span><span>Tap <b>Runway Show!</b> and your model walks the runway and strikes a pose!</span></li>
         <li><span class="ic">🎭</span><span>Pick the <b>stage</b> (like Tihar Lights or Idol Concert) and the <b>music</b>.</span></li>
+        <li><span class="ic">👏</span><span>At the end of the show she takes a bow! Tap <b>🔁 Encore!</b> to watch the show again.</span></li>
         <li><span class="ic">⬅️</span><span><b>Back to Studio</b> takes you back to designing.</span></li>
+        <li><span class="ic">👯</span><span>In 🎭, <b>Walk with a friend</b> picks an outfit (like your sister's!) to walk the runway next to you.</span></li>
+        <li><span class="ic">🎙️</span><span>The <b>Announcer</b> tells everyone about your outfit while you walk. Switch it On or Off in 🎭. It needs the internet to look at your outfit.</span></li>
       </ul></section>
       <section class="help-sec"><h3>🔝 Top buttons</h3><ul>
         <li><span class="ic">❓</span><span>Opens this help screen any time.</span></li>
@@ -560,6 +596,20 @@ input[type=range]:focus-visible{outline:3px solid var(--accent-soft);outline-off
   <div class="card closet">
     <div class="closet-head"><span>👗 My Closet</span><button class="cp-x" id="closetClose" aria-label="Close closet">✕</button></div>
     <button class="btn primary big" id="closetSave">＋ Save this outfit</button>
+    <div class="get-box">
+      <label for="getCode">📥 Get an outfit</label>
+      <div class="get-row">
+        <input id="getCode" type="text" maxlength="16" placeholder="Type the code" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="Outfit code from your sister">
+        <button class="btn primary big" id="getGo">Get it!</button>
+      </div>
+    </div>
+    <p class="closet-msg hidden" id="closetMsg" role="status" aria-live="polite"></p>
+    <div class="share-panel hidden" id="sharePanel" role="status">
+      <span class="sp-t">Tell your sister this code:</span>
+      <span class="sp-code" id="shareCodeBig"></span>
+      <span class="sp-s">It works for 30 days</span>
+      <button class="btn" id="shareDone">OK!</button>
+    </div>
     <p class="hint">Tap an outfit to wear it again</p>
     <div class="closet-grid" id="closetGrid"></div>
   </div>
@@ -609,6 +659,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
+const API_BASE = /[?&]api=local\b/.test(location.search) ? 'http://127.0.0.1:8787' : 'https://fashion-studio-api.fashion-studio-api.workers.dev';
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
@@ -762,6 +813,8 @@ const mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)')
 if (mq && mq.addEventListener) mq.addEventListener('change', () => rebuildBackgrounds());
 
 const FACE_FILL = .6;
+const DEVICE_VOICE = false; // announcer never falls back to the device's robotic text-to-speech: no recording = no announcement
+const BEAM_K = .35; // light-beam cones are see-through glow; stronger washed light outfits out to white
 const hemi = new THREE.HemisphereLight(0xffffff, 0xffc4e4, .9); scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xffffff, 1.5);
 sun.position.set(2.2, 4, 3); sun.castShadow = true;
@@ -800,6 +853,8 @@ const stg = { decor: {} };
 const lightMatA = new THREE.MeshBasicMaterial({ color: '#ff5fa2' });
 const lightMatB = new THREE.MeshBasicMaterial({ color: '#7ff5e6' });
 let designerName = (store.get('tfs.v1.name') || '').trim().slice(0, 18);
+const banner = { duo: false, partner: '' }; // set while a two-model show runs
+const bannerLine = () => banner.duo ? (designerName && banner.partner ? (designerName.trim().toLowerCase() === banner.partner.trim().toLowerCase() ? 'Designer: ' + designerName : 'Designers: ' + designerName + ' & ' + banner.partner) : 'Our designers') : (designerName ? 'Designer: ' + designerName : '');
 let backdropTex = null;
 const bdCanvas = document.createElement('canvas'); bdCanvas.width = 1024; bdCanvas.height = 512;
 let themeId = 'classic';
@@ -964,12 +1019,12 @@ function drawBackdrop() {
   const c = bdCanvas, g = c.getContext('2d'); g.clearRect(0, 0, 1024, 512);
   g.save(); ART[themeId] ? ART[themeId](g) : ART.classic(g); g.restore();
   const fit = (txt, wt, size, max) => { const fam = 'Fredoka, "Baloo 2", system-ui, sans-serif'; g.font = `${wt} ${size}px ${fam}`; while (g.measureText(txt).width > max && size > 24) { size -= 3; g.font = `${wt} ${size}px ${fam}`; } };
-  g.textAlign = 'center'; g.textBaseline = 'middle';
-  if (T.pill) { g.fillStyle = 'rgba(60,30,110,.42)'; rrect(g, 190, designerName ? 192 : 232, 644, designerName ? 190 : 126, 36); g.fill(); }
+  g.textAlign = 'center'; g.textBaseline = 'middle'; const line = bannerLine();
+  if (T.pill) { g.fillStyle = 'rgba(60,30,110,.42)'; rrect(g, 190, line ? 192 : 232, 644, line ? 190 : 126, 36); g.fill(); }
   g.shadowColor = T.glow; g.shadowBlur = 40; g.fillStyle = '#fff'; fit('Fashion Studio Runway', 700, 78, 540);
-  g.fillText('Fashion Studio Runway', 512, designerName ? 255 : 295);
-  if (designerName) {
-    const t = 'Designer: ' + designerName; g.shadowBlur = 20; g.fillStyle = T.sub; fit(t, 600, 50, 520); g.fillText(t, 512, 335);
+  g.fillText('Fashion Studio Runway', 512, line ? 255 : 295);
+  if (line) {
+    const t = line; g.shadowBlur = 20; g.fillStyle = T.sub; fit(t, 600, 50, 520); g.fillText(t, 512, 335);
   }
   g.shadowBlur = 0;
   if (backdropTex) backdropTex.needsUpdate = true;
@@ -1010,7 +1065,7 @@ function drawBackdrop() {
     }
   }
   // spotlights (cheap: no shadows) + visible light cones
-  stg.coneMat = new THREE.MeshBasicMaterial({ color: '#fff3d6', transparent: true, opacity: .09, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
+  stg.coneMat = new THREE.MeshBasicMaterial({ color: '#fff3d6', transparent: true, opacity: .09 * BEAM_K, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.FrontSide });
   [[-3.4, 6.5, 3.5, '#ffd9f0', -.3, 0, 1.6], [3.4, 6.5, 3.5, '#d9f4ff', .3, 0, 1.6], [0, 6.8, -3, '#ffffff', 0, 0, -1.5]].forEach(a => {
     const sp = new THREE.SpotLight(a[3], 0, 0, .5, .7, 1.6); sp.position.set(a[0], a[1], a[2]);
     sp.target.position.set(a[4], 0, a[6]); scene.add(sp, sp.target); spots.push(sp);
@@ -1211,7 +1266,7 @@ function applyTheme(id) {
   stg.rwMat.color.set(T.run); stg.rwMat.roughness = T.runR; stg.rwMat.metalness = T.runM;
   stg.stripeMat.color.set(T.stripe); stg.floorMat.color.set(T.floor); stg.archMat.color.set(T.arch);
   if (T.curt) stg.curtMat.color.set(T.curt); stg.curtG.visible = !!T.curt;
-  spots.forEach((sp, i) => sp.color.set(T.spot[i])); stg.coneMat.color.set(T.cone); stg.coneMat.opacity = T.coneOp; stg.bdMat.toneMapped = T.lum >= 1; stg.bdMat.needsUpdate = true;
+  spots.forEach((sp, i) => sp.color.set(T.spot[i])); stg.coneMat.color.set(T.cone); stg.coneMat.opacity = T.coneOp * BEAM_K; stg.bdMat.toneMapped = T.lum >= 1; stg.bdMat.needsUpdate = true;
   twinkle.pts.visible = !!T.twink; if (T.twink) twinkle.pts.material.color.set(T.twink);
   setFall(T.fall);
   for (const k in stg.decor) stg.decor[k].visible = k === id;
@@ -1301,7 +1356,8 @@ const POSES = [
   { id: 'heart', label: '💖 Finger heart', a0: [-1.15, .12], e0: [-1.8, 0], a1: [-.1, -.5], e1: [-.25, .55], hz: .16, expr: 'happy' },
   { id: 'mic', label: '🎤 Mic point', a0: [-1.4, .85], e0: [-.12, 0], a1: [-1.05, .75], e1: [-1.9, 0], hz: -.1, expr: 'singing' },
   { id: 'ninja', label: '🥷 Ninja ready', a0: [-1.25, .5], e0: [-.45, 0], a1: [-.55, .3], e1: [-1.9, 0], hz: 0, expr: 'fierce', leg: { t0: [-.32, .3], t1: [.14, -.3], k0: .62, k1: .5, drop: .05 } },
-  { id: 'namaste', label: '🙏 Namaste', a0: [-.2, -.35], e0: [-2, -.5], a1: [-.2, .35], e1: [-2, .5], hz: 0, hx: .28, expr: 'happy' }
+  { id: 'namaste', label: '🙏 Namaste', a0: [-.2, -.35], e0: [-2, -.5], a1: [-.2, .35], e1: [-2, .5], hz: 0, hx: .28, expr: 'happy' },
+  { id: 'bff', label: '💞 Best friends', duo: true, mir: true, a0: [-.2, 2.7], e0: t => [-.1, -.15 + Math.sin(t * 9) * .5], a1: [-.1, -.5], e1: [-.25, .55], hz: -.14, expr: 'happy' } // duo only; the partner does the mirror image
 ];
 // y of the face surface at (x, y) for the head ellipsoid, so brows / paint sit on it
 const faceZ = (x, y) => .96 * Math.sqrt(Math.max(.0001, .0361 - x * x - (y / .96) * (y / .96)));
@@ -1755,7 +1811,7 @@ class Character {
     this.time += dt; const t = this.time, w = this.walkAmt, p = this.poseW, idle = 1 - w;
     const T = POSES[this.poseId] || POSES[0];
     const pw = this.poseId ? 0 : p, pe = p - pw; // pw: original hand-on-hip blend, pe: blend for the other poses
-    const ws = this.walkScale || 1;
+    const ws = this.walkScale || 1, mir = !!(this.mirror && T.mir);
     this.armSpread = lerp(this.armSpread, this.armTarget, 1 - Math.exp(-dt * 8));
     const sp = this.armSpread;
     const A = .5 * ws * w, sL = Math.sin(phase), sR = -sL;
@@ -1767,6 +1823,7 @@ class Character {
     this.hips.rotation.set(0, hy, Math.sin(phase) * .045 * w + sway * .02 * idle + .07 * pw);
     this.hips.position.set(Math.sin(phase) * .014 * w, .52 - .09 * A * Math.abs(Math.sin(phase)) - .004 * br * idle, 0);
     this.spine.rotation.set(.02 * pw, -hy * .9 + .16 * pw, -Math.sin(phase) * .03 * w - this.hips.rotation.z * .6);
+    if (this.bowK) { this.spine.rotation.x += this.bowK * .72; this.hips.rotation.x += this.bowK * .12; } // finale bow
     // legs
     const off = .07 - .033 * w;
     const th = this.thighs, kn = this.knees;
@@ -1791,7 +1848,9 @@ class Character {
     el[1].rotation.set(-(.2 + .2 * w) * (1 - pw), 0, sp * .35 * (1 - pw) + 1.55 * pw);
     if (pe > .002) {
       const blend = (o, v) => { if (!v) return; o.rotation.x = lerp(o.rotation.x, v[0], pe); o.rotation.z = lerp(o.rotation.z, v[1], pe); };
-      blend(ar[0], T.a0); blend(ar[1], T.a1); blend(el[0], typeof T.e0 === 'function' ? T.e0(t) : T.e0); blend(el[1], T.e1);
+      const e0 = typeof T.e0 === 'function' ? T.e0(t) : T.e0;
+      if (mir) { const mv = v => v && [v[0], -v[1]]; blend(ar[1], mv(T.a0)); blend(ar[0], mv(T.a1)); blend(el[1], mv(e0)); blend(el[0], mv(T.e1)); }
+      else { blend(ar[0], T.a0); blend(ar[1], T.a1); blend(el[0], e0); blend(el[1], T.e1); }
     }
     this.peace.visible = this.poseId === 3 && p > .5; this.namG.visible = this.poseId === 7 && p > .5;
     this.heartG.visible = this.poseId === 4 && p > .5; this.micG.visible = this.poseId === 5 && p > .5;
@@ -1800,7 +1859,7 @@ class Character {
       this.heartG.position.copy(_v1).add(_v2.set(0, .05, .085)); this.heartG.scale.setScalar(1 + Math.sin(t * 6) * .08);
     }
     // head
-    this.headPivot.rotation.set(Math.sin(t * .9) * .02 * idle + (T.hx || 0) * pe, -hy * .6 + Math.sin(t * .7) * .06 * idle, .2 * pw + (T.hz || 0) * pe + Math.sin(t * .8) * .02);
+    this.headPivot.rotation.set(Math.sin(t * .9) * .02 * idle + (T.hx || 0) * pe, -hy * .6 + Math.sin(t * .7) * .06 * idle, .2 * pw + (T.hz || 0) * (mir ? -1 : 1) * pe + Math.sin(t * .8) * .02);
     // hair swing (only the visible styles matter, but the maths is trivial)
     const sw2 = Math.sin(phase * 2 + 1);
     this.pony.rotation.x = .35 + sw2 * .22 * w + Math.sin(t * 1.6) * .05 * idle;
@@ -2758,7 +2817,7 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
    Music (WebAudio, no files)
    ============================================================================ */
 const audio = (() => {
-  let ctx = null, master, noise, timer = null, step = 0, nextT = 0, playing = false;
+  let ctx = null, master, noise, timer = null, step = 0, nextT = 0, playing = false, duckK = 1, vgain = null;
   let bpm = 126, sp = 60 / bpm / 4, track = 'pop'; const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
   function init() {
     if (ctx) return true; const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
@@ -2903,7 +2962,22 @@ const audio = (() => {
     start() { if (!init()) return; try { ctx.resume(); } catch (e) { } if (playing) return; playing = true; step = 0; nextT = ctx.currentTime + .08; timer = setInterval(tick, 25); },
     stop() { playing = false; clearInterval(timer); timer = null; },
     setTrack(id) { if (!TR[id]) return; track = id; bpm = TR[id].bpm; sp = 60 / bpm / 4; step = 0; if (ctx) nextT = ctx.currentTime + .05; },
-    setMuted(m) { if (master) master.gain.setTargetAtTime(m ? 0 : .55, ctx.currentTime, .03); },
+    setMuted(m) { if (master) master.gain.setTargetAtTime(m ? 0 : .55 * duckK, ctx.currentTime, .03); if (vgain) vgain.gain.setTargetAtTime(m ? 0 : 1, ctx.currentTime, .03); },
+    // announcer support: lower the music while she speaks, and a voice channel that shares the (already unlocked) context
+    duck(on) { duckK = on ? .3 : 1; if (master) master.gain.setTargetAtTime(muted ? 0 : .55 * duckK, ctx.currentTime, .12); },
+    get ctx() { return ctx; }, get duckK() { return duckK; }, get masterGain() { return master ? master.gain.value : null; },
+    voice() { if (!init()) return null; if (!vgain) { vgain = ctx.createGain(); vgain.connect(ctx.destination); } vgain.gain.value = muted ? 0 : 1; return vgain; },
+    applause(dur = 3.2) { // crowd clapping: many short band-passed noise claps that swell and fade
+      if (!init() || !noise || muted) return;
+      const out = this.voice(), t0 = ctx.currentTime + .02;
+      for (let i = 0; i < Math.round(dur * 38); i++) {
+        const t = t0 + Math.random() * dur, env = Math.sin(Math.PI * Math.min(1, (t - t0) / dur)) * .9 + .1;
+        const src = ctx.createBufferSource(); src.buffer = noise;
+        const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900 + Math.random() * 1700; bp.Q.value = 1.2;
+        const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.16 * env, t + .004); g.gain.exponentialRampToValueAtTime(.001, t + .07 + Math.random() * .05);
+        src.connect(bp); bp.connect(g); g.connect(out); src.start(t, Math.random() * .8, .14);
+      }
+    },
     get on() { return playing; }, get bpm() { return bpm; }, get track() { return track; }
   };
 })();
@@ -2914,7 +2988,8 @@ muteBtn.addEventListener('click', () => { muted = !muted; audio.setMuted(muted);
 /* ============================================================================
    Runway show
    ============================================================================ */
-const show = { on: false, poseId: 0, nextPose: 0, state: 'walkIn', t: 0, z: -5, yaw: 0, phase: 0, flashes: 0, y0: 0, camMode: 'orbit', saved: null, flashBoost: 0, camT: 0, bpmT: 0 };
+const SHOW_LAPS = 2; // up the runway, back down, up again, then the finale (about 30 s)
+const show = { on: false, laps: 0, poseId: 0, nextPose: 0, state: 'walkIn', t: 0, z: -5, yaw: 0, phase: 0, flashes: 0, y0: 0, camMode: 'orbit', saved: null, flashBoost: 0, camT: 0, bpmT: 0, duo: false, dx: 0, dz: 0, rmax: 0, partner: null, pyaw: 0, py0: 0 };
 const appEl = $('#app'); const fx = $('#fx');
 function burst(n = 4) {
   for (let i = 0; i < n; i++) {
@@ -2925,23 +3000,42 @@ function burst(n = 4) {
   }
   show.flashBoost = 1; wflash();
 }
+function confetti(n = 90) {
+  const cols = ['#ff5fa2', '#ffd23f', '#38e8ff', '#9d78ff', '#7ee08a', '#ff9a3d', '#ffffff'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div'); c.className = 'confetti';
+    c.style.left = (Math.random() * 100) + '%'; c.style.background = cols[i % cols.length];
+    c.style.setProperty('--dx', ((Math.random() - .5) * 160) + 'px'); c.style.setProperty('--rot', ((Math.random() - .5) * 1440) + 'deg');
+    c.style.animationDelay = (Math.random() * .9) + 's'; c.style.width = (7 + Math.random() * 6) + 'px';
+    fx.appendChild(c); setTimeout(() => c.remove(), 4200);
+  }
+}
+function setBow(k) { active().bowK = k; if (show.duo && show.partner) show.partner.bowK = k; }
+function encore() { // replay the show from the top: same stage, music, partner; no new announcement
+  if (!show.on) return;
+  $('#encoreBtn').classList.add('hidden'); setBow(0);
+  show.state = 'walkIn'; show.t = 0; show.z = -5; show.yaw = 0; show.pyaw = 0; show.laps = 0;
+}
 function wflash() { const w = $('#wflash'); w.classList.remove('go'); void w.offsetWidth; w.classList.add('go'); }
 function showCamPos() {
   const asp = camera.aspect; const extra = Math.max(0, 1.3 - asp) * 2.4;
-  return new THREE.Vector3(0, 1.3, 6.9 + extra);
+  let z = 6.9 + extra;
+  if (show.duo) z = Math.max(z, 2.4 + 2 * (show.dx + show.rmax + .3) / (.688 * asp)); // back off so both models stay in view
+  return new THREE.Vector3(0, 1.3, z);
 }
 function startShow() {
   if (show.on) return; show.on = true; appEl.classList.add('show');
   $('#runwayBtn').classList.add('hidden'); $('#exitWrap').classList.remove('hidden');
   show.saved = { pos: camera.position.clone(), target: controls.target.clone() };
   show.camMode = 'show'; controls.enabled = false;
-  show.state = 'walkIn'; show.t = 0; show.z = -5; show.yaw = 0; show.phase = 0; show.nextPose = Math.floor(Math.random() * POSES.length);
+  show.state = 'walkIn'; show.t = 0; show.z = -5; show.yaw = 0; show.phase = 0; show.laps = 0; setBow(0); $('#encoreBtn').classList.add('hidden'); enterDuo(); show.nextPose = show.duo ? POSES.length - 1 : Math.floor(Math.random() * (POSES.length - 1)); // duo shows open with Best friends
   stage.visible = true; pedestal.visible = false; scene.background = bgShow; applyLights(); closeCtl();
   audio.start(); audio.setMuted(muted);
   requestAnimationFrame(resize);
 }
 function stopShow() {
-  if (!show.on) return; show.on = false; appEl.classList.remove('show'); audio.stop();
+  if (!show.on) return; show.on = false; appEl.classList.remove('show'); audio.stop(); setBow(0); $('#encoreBtn').classList.add('hidden');
+  stopAnnouncer(); leaveDuo();
   $('#runwayBtn').classList.remove('hidden'); $('#exitWrap').classList.add('hidden');
   stage.visible = false; pedestal.visible = true; scene.background = bgDesign; applyLights(); closeCtl();
   const c = active(); c.root.position.set(0, 0, 0); c.root.rotation.y = 0; c.walkAmt = 0; c.poseW = 0;
@@ -2949,13 +3043,14 @@ function stopShow() {
   show.camMode = 'return';
   requestAnimationFrame(resize);
 }
-$('#runwayBtn').addEventListener('click', startShow);
+$('#runwayBtn').addEventListener('click', onRunwayTap);
 $('#exitBtn').addEventListener('click', stopShow);
+$('#encoreBtn').addEventListener('click', encore);
 $('#frontBtn').addEventListener('click', () => {
   if (show.on) return; show.camMode = 'return'; show.saved = { pos: new THREE.Vector3(0, 1.05, 3.5), target: new THREE.Vector3(0, .72, 0) }; controls.enabled = false;
 });
 function updateShow(dt) {
-  const c = active(); const SPEED = 1.25; c.poseId = show.poseId;
+  const c = active(); const SPEED = 1.25; c.poseId = show.poseId; const nP = POSES.length - (show.duo ? 0 : 1); // the duo pose only joins when two models walk
   c.walkAmt += ((show.wTarget ?? 1) - c.walkAmt) * (1 - Math.exp(-dt * 6));
   c.poseW += ((show.pTarget ?? 0) - c.poseW) * (1 - Math.exp(-dt * 5));
   let moving = 0;
@@ -2963,18 +3058,34 @@ function updateShow(dt) {
   switch (show.state) {
     case 'walkIn':
       show.wTarget = 1; show.pTarget = 0; show.yaw = 0; show.z += SPEED * dt * c.walkAmt; moving = 1;
-      if (show.z >= 2.4) { show.z = 2.4; show.state = 'pose'; show.t = 0; show.fl = [0, 0, 0]; show.poseId = show.nextPose; show.nextPose = (show.nextPose + 1) % POSES.length; c.poseId = show.poseId; toast(POSES[show.poseId].label); burst(4); }
+      if (show.z >= 2.4) { show.z = 2.4; show.state = 'pose'; show.t = 0; show.laps++; show.fl = [0, 0, 0]; show.poseId = show.nextPose; show.nextPose = (show.nextPose + 1) % nP; c.poseId = show.poseId; toast(POSES[show.poseId].label); burst(4); }
       break;
     case 'pose':
       show.wTarget = 0; show.pTarget = 1;
-      if (show.poseId === 2) show.yaw = TAU * ease(clamp((show.t - .4) / 2.2, 0, 1)); // twirl: one full spin
-      else show.yaw = Math.sin(show.t * 1.5) * .28 * Math.min(1, show.t);
+      if (show.poseId === 2) { show.yaw = TAU * ease(clamp((show.t - .4) / 2.2, 0, 1)); show.pyaw = show.yaw; } // twirl: one full spin
+      else if (POSES[show.poseId].duo) { show.yaw = .5 * ease(clamp(show.t / .8, 0, 1)) + Math.sin(show.t * 1.5) * .05; show.pyaw = -show.yaw; } // turn toward each other
+      else { show.yaw = Math.sin(show.t * 1.5) * .28 * Math.min(1, show.t); show.pyaw = -show.yaw; } // partner mirrors the sway
       if (show.t > 1.2 && !show.fl[1]) { show.fl[1] = 1; burst(5); }
       if (show.t > 2.5 && !show.fl[2]) { show.fl[2] = 1; burst(4); }
-      if (show.t > 3.4) { show.state = 'turn'; show.t = 0; show.y0 = show.yaw % TAU; }
+      if (show.t > 3.4) {
+        show.y0 = show.yaw % TAU; show.py0 = show.pyaw % TAU; show.t = 0;
+        show.state = show.laps >= SHOW_LAPS ? 'finale' : 'turn';
+      }
+      break;
+    case 'finale': { // face the audience, bow, confetti + applause, then offer Encore
+      show.wTarget = 0; show.pTarget = 0;
+      const f = ease(clamp(show.t / .6, 0, 1)); show.yaw = show.y0 * (1 - f); show.pyaw = show.py0 * (1 - f);
+      const b = show.t < .7 ? 0 : show.t < 1.6 ? ease((show.t - .7) / .9) : show.t < 2.4 ? 1 : 1 - ease(clamp((show.t - 2.4) / .8, 0, 1));
+      setBow(b);
+      if (show.t > .8 && !show.fin) { show.fin = 1; confetti(); audio.applause(); toast('👏 Bravo!'); burst(5); }
+      if (show.t > 3.3) { show.state = 'done'; show.t = 0; show.fin = 0; setBow(0); $('#encoreBtn').classList.remove('hidden'); }
+      break;
+    }
+    case 'done': // gentle idle at the front until Encore or Back to Studio
+      show.wTarget = 0; show.pTarget = 0; show.yaw = Math.sin(show.t * .8) * .12; show.pyaw = -show.yaw;
       break;
     case 'turn':
-      show.wTarget = .35; show.pTarget = 0; show.yaw = show.y0 + (Math.PI - show.y0) * ease(clamp(show.t / 1.0, 0, 1));
+      show.wTarget = .35; show.pTarget = 0; show.yaw = show.y0 + (Math.PI - show.y0) * ease(clamp(show.t / 1.0, 0, 1)); show.pyaw = show.py0 + (Math.PI - show.py0) * ease(clamp(show.t / 1.0, 0, 1));
       if (show.t >= 1.0) { show.state = 'walkOut'; show.t = 0; }
       break;
     case 'walkOut':
@@ -2986,9 +3097,11 @@ function updateShow(dt) {
       if (show.t >= 1.0) { show.state = 'walkIn'; show.t = 0; show.yaw = 0; }
       break;
   }
+  if (show.state !== 'pose' && show.state !== 'turn' && show.state !== 'finale' && show.state !== 'done') show.pyaw = show.yaw;
   const cyc = 1.55 * (show.state === 'turn' || show.state === 'turnBack' ? .6 : 1);
   show.phase += dt * Math.PI * 2 * cyc * Math.max(.2, c.walkAmt);
-  c.root.position.set(0, 0, show.z); c.root.rotation.y = show.yaw;
+  c.root.position.set(show.duo ? -show.dx : 0, 0, show.z + show.dz / 2); c.root.rotation.y = show.yaw;
+  if (show.duo) { const p = show.partner; p.walkAmt = c.walkAmt; p.poseW = c.poseW; p.poseId = show.poseId; p.root.position.set(show.dx, 0, show.z - show.dz / 2); p.root.rotation.y = show.pyaw; }
   c.speedFx = moving * -1.5 * (show.state === 'walkOut' ? -1 : 1) * 0;
   // light follows the model for shadow
   sun.target.position.set(0, 0, show.z); sun.position.set(2.2, 4, show.z + 3);
@@ -3047,6 +3160,212 @@ function setMusic(id) {
 }
 ctlBtn.addEventListener('click', e => { e.stopPropagation(); const o = ctlPop.classList.contains('hidden'); ctlPop.classList.toggle('hidden', !o); ctlBtn.setAttribute('aria-expanded', String(o)); });
 document.addEventListener('pointerdown', e => { if (!ctlPop.classList.contains('hidden') && !ctlPop.contains(e.target) && !ctlBtn.contains(e.target)) closeCtl(); });
+
+/* ============================================================================
+   Duo runway (a second model built from a closet outfit) and the AI announcer.
+   The partner never touches the player's saved drawings: its garments are marked
+   "ready" up front so ensureGarment() never loads or saves tfs.v2.design.* for it.
+   ============================================================================ */
+const duo = { id: store.get('tfs.v1.partner') || '', outfit: null, char: null, fill: null, applied: '' };
+const SHOE_NAMES = ['pink', 'purple', 'teal', 'yellow', 'white', 'orange', 'black', 'gold', 'silver', 'sky blue'];
+function cleanCfg(c) { // outfits can come from a friend's code: only trust known values
+  const okIdx = (v, l, d) => Number.isInteger(v) && v >= 0 && v < l.length ? v : d; c = c || {};
+  const cfg = { skin: okIdx(c.skin, SKINS, 1), hair: okIdx(c.hair, HAIRS, 2), shoe: okIdx(c.shoe, SHOES, 0), eye: okIdx(c.eye, EYES, 0),
+    shoeStyle: c.shoeStyle === 'boot' ? 'boot' : 'flat', style: STYLES.some(x => x[0] === c.style) ? c.style : 'pony',
+    dress: DRESSES.some(x => x.id === c.dress) ? c.dress : 'aline', expr: EXPR_BY_ID[c.expr] ? c.expr : 'happy', acc: {} };
+  ACC_KEYS.forEach(k => { cfg.acc[k] = !!(c.acc && typeof c.acc === 'object' && c.acc[k]); });
+  return cfg;
+}
+function dropGarments(ch, keep) { // free the GPU memory of dresses the partner no longer wears
+  for (const k of Object.keys(ch.garments)) if (k !== keep) { const g = ch.garments[k]; ch.hips.remove(g.mesh); g.geo.dispose(); g.mat.dispose(); g.texture.dispose(); delete ch.garments[k]; }
+}
+function applyDesign(g, dsg) {
+  readyGarments.add(g); defaultDesign(g); g.touch();
+  if (dsg && typeof dsg.deco === 'string' && dsg.deco.startsWith('data:image/png')) {
+    const stamp = g.gen = (g.gen || 0) + 1, img = new Image();
+    img.onload = () => { if (g.gen !== stamp) return; try { if (dsg.bg && typeof dsg.bg === 'object') { g.bgSpec = dsg.bg; paintBg(g); } g.ctx.clearRect(0, 0, N, N); g.ctx.drawImage(img, 0, 0, N, N); g.touch(); } catch (e) { } };
+    img.src = dsg.deco;
+  }
+}
+function ensurePartner() { // builds (once) or re-dresses the single cached partner model
+  const o = duo.outfit; if (!o) return null;
+  try {
+    const cfg = cleanCfg(o.cfg); let ch = duo.char;
+    if (!ch) {
+      ch = duo.char = new Character(1, cfg); ch.mirror = true; ch.group.visible = false; scene.add(ch.group);
+      duo.fill = new THREE.PointLight(0xfff2ec, 0, 1.3, 2); duo.fill.position.set(0, -.05, .55); ch.head.add(duo.fill); duo.applied = '';
+    }
+    if (duo.applied !== o.id) {
+      ch.setSkin(cfg.skin); ch.setHair(cfg.hair); ch.setShoe(cfg.shoe); ch.setEye(cfg.eye); ch.setShoeStyle(cfg.shoeStyle); ch.setHairStyle(cfg.style);
+      ACC_KEYS.forEach(k => ch.setAcc(k, cfg.acc[k])); ch.setExpression(cfg.expr);
+      ch.setOutfit(cfg.dress); dropGarments(ch, cfg.dress); applyDesign(ch.getGarment(), o.design); ch.fitNorigae();
+      duo.applied = o.id;
+    }
+    return ch;
+  } catch (e) { console.warn('partner failed', e); return null; }
+}
+function enterDuo() {
+  show.duo = false; banner.duo = false; banner.partner = '';
+  const p = duo.outfit ? ensurePartner() : null;
+  if (p) {
+    const R1 = active().getGarment().F.R, R2 = p.getGarment().F.R;
+    const S = clamp(R1 + R2 + .2, .66, 1.16); show.dx = S / 2; show.dz = Math.min(.75, Math.sqrt(Math.max(0, (R1 + R2 + .34) ** 2 - S * S))); // huge skirts: stagger them a little in depth so they never touch
+    show.rmax = Math.max(R1, R2); show.partner = p; show.duo = true; show.pyaw = 0;
+    p.group.visible = true; p.walkAmt = 0; p.poseW = 0; p.poseId = 0;
+    banner.duo = true; banner.partner = (duo.outfit.name || '').slice(0, 18);
+  }
+  drawBackdrop();
+}
+function leaveDuo() {
+  const was = show.duo; show.duo = false; show.dz = 0; banner.duo = false; banner.partner = '';
+  if (duo.char) { duo.char.group.visible = false; duo.char.walkAmt = 0; duo.char.poseW = 0; duo.char.root.position.set(0, 0, 0); duo.char.root.rotation.y = 0; }
+  if (was) drawBackdrop();
+}
+function setPartner(o) {
+  duo.id = o ? o.id : ''; duo.outfit = o || null; store.set('tfs.v1.partner', duo.id);
+  if (o) { ensurePartner(); toast('👯 ' + (o.from || o.name || 'Your friend') + ' will walk with you!'); }
+  refreshDuoRow();
+}
+function refreshDuoRow() {
+  const row = $('#duoRow');
+  const build = items => {
+    if (duo.id) { const f = items.find(x => x.id === duo.id); if (f) duo.outfit = f; else { duo.id = ''; duo.outfit = null; store.set('tfs.v1.partner', ''); } }
+    row.replaceChildren();
+    const none = document.createElement('button'); none.className = 'btn'; none.setAttribute('aria-pressed', String(!duo.id)); none.setAttribute('aria-label', 'Just me');
+    none.innerHTML = '<span class="e">🙋‍♀️</span><span>Just me</span>'; none.addEventListener('click', () => setPartner(null)); row.append(none);
+    const ordered = items.filter(o => o.from).concat(items.filter(o => !o.from));
+    ordered.forEach(o => {
+      const d = DRESSES.find(x => x.id === (o.cfg && o.cfg.dress)); const label = o.from || (d ? (d.short || d.name) : 'Outfit');
+      const b = document.createElement('button'); b.className = 'btn thumb'; b.setAttribute('aria-pressed', String(o.id === duo.id));
+      b.setAttribute('aria-label', 'Walk with ' + (o.from ? 'outfit from ' + o.from : (d ? d.name : 'outfit')));
+      const im = document.createElement('img'); im.alt = ''; im.src = typeof o.thumb === 'string' && o.thumb.startsWith('data:image/') ? o.thumb : ''; const sp = document.createElement('span'); sp.textContent = label;
+      b.append(im, sp); b.addEventListener('click', () => setPartner(o)); row.append(b);
+    });
+  };
+  closet.load().then(build).catch(() => build([]));
+}
+ctlBtn.addEventListener('click', () => { if (!ctlPop.classList.contains('hidden')) refreshDuoRow(); });
+
+/* ---- announcer ---- */
+const ann = { on: store.get('tfs.v1.announcer') !== '0', token: 0, ctl: null, src: null, utt: null, hideT: 0, safeT: 0 };
+const annCap = document.createElement('div'); annCap.className = 'ann-cap'; annCap.setAttribute('role', 'status'); annCap.setAttribute('aria-live', 'polite'); stageEl.appendChild(annCap);
+[['On', true, '🎙️'], ['Off', false, '🔇']].forEach(([n, v, e]) => mkOpt($('#annRow'), e, n, 'ann', v ? 'on' : 'off', () => { ann.on = v; store.set('tfs.v1.announcer', v ? '1' : '0'); refreshAnn(); }));
+function refreshAnn() { $$('#annRow .btn').forEach(b => b.setAttribute('aria-pressed', String((b.dataset.ann === 'on') === ann.on))); }
+refreshAnn();
+
+function primeSpeech() { // iOS only lets speech start from a tap, so speak a silent utterance right now
+  try { if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); speechSynthesis.getVoices(); } } catch (e) { }
+}
+function snapChar(ch) { // front-view JPEG of one model (about 384x512), taken with a temporary camera
+  const subs = [chars[0].group].concat(duo.char ? [duo.char.group] : []), was = subs.map(g => g.visible), rp = ch.root.position.clone(), ry = ch.root.rotation.y;
+  try {
+    subs.forEach(g => g.visible = false); ch.group.visible = true; ch.root.position.set(0, 0, 0); ch.root.rotation.y = 0;
+    if (ch !== chars[0]) { ch.walkAmt = 0; ch.poseW = 0; ch.poseId = 0; for (let i = 0; i < 24; i++) ch.update(.05, 0); }
+    ch.getGarment().flush();
+    const src = renderer.domElement, W0 = src.width, H0 = src.height;
+    let cw = H0 * .75, chh = H0; if (cw > W0) { cw = W0; chh = W0 * 4 / 3; }
+    const worldH = 1.79 * H0 / chh, cam = new THREE.PerspectiveCamera(38, W0 / H0, .1, 60), d = worldH / (2 * Math.tan(19 * Math.PI / 180));
+    cam.position.set(0, .66, d); cam.lookAt(0, .66, 0); cam.updateMatrixWorld();
+    renderer.render(scene, cam);
+    const out = document.createElement('canvas'); out.width = 384; out.height = 512; const g = out.getContext('2d');
+    g.drawImage(src, (W0 - cw) / 2, (H0 - chh) / 2, cw, chh, 0, 0, 384, 512);
+    return out.toDataURL('image/jpeg', .8);
+  } catch (e) { console.warn('snapshot failed', e); return null; }
+  finally { subs.forEach((g, i) => g.visible = was[i]); ch.root.position.copy(rp); ch.root.rotation.y = ry; }
+}
+function modelInfo(cfg, name, image) {
+  const d = DRESSES.find(x => x.id === cfg.dress), st = STYLES.find(x => x[0] === cfg.style), ex = EXPR_BY_ID[cfg.expr];
+  const m = {
+    name: (name || '').slice(0, 18), dress: d ? d.name : 'dress', hairstyle: st ? st[1] : '', hairColor: (HAIR_NAMES[cfg.hair] || '').toLowerCase(),
+    accessories: ACCS.filter(a => cfg.acc && cfg.acc[a[0]]).map(a => a[2]), shoes: (SHOE_NAMES[cfg.shoe] || '') + (cfg.shoeStyle === 'boot' ? ' boots' : ' flats'), expression: ex ? ex.label.toLowerCase() : ''
+  };
+  if (image) m.image = image; return m;
+}
+function captureModels() {
+  const me = active(), list = [modelInfo(me.cfg, designerName, snapChar(me))];
+  if (duo.outfit) { const p = ensurePartner(); if (p) list.push(modelInfo(p.cfg, duo.outfit.name || '', snapChar(p))); }
+  return list;
+}
+function localText(payload) { // same words as the server's template, for when the internet is not there
+  const models = payload.models, theme = payload.theme, who = m => m.name || 'our designer';
+  const parts = [`Welcome to the ${theme || 'Fashion Studio'} runway!`];
+  models.forEach(m => {
+    const acc = m.accessories.length ? `, with ${m.accessories.slice(0, 2).join(' and ')}` : '';
+    parts.push(`Here comes ${who(m)} in a beautiful ${m.dress}${acc}${m.hairstyle ? ', with her hair in a ' + m.hairstyle.toLowerCase() : ''}!`);
+  });
+  parts.push(models.length > 1 ? 'Give it up for these two amazing designers!' : 'Give it up for our amazing designer!');
+  return parts.join(' ');
+}
+function showCaption(text) { clearTimeout(ann.hideT); annCap.textContent = text; annCap.classList.add('on'); }
+function finishVoice(my) {
+  if (my !== ann.token) return;
+  clearTimeout(ann.safeT); audio.duck(false); ann.src = null; ann.utt = null;
+  clearTimeout(ann.hideT); ann.hideT = setTimeout(() => annCap.classList.remove('on'), 3500);
+}
+function stopAnnouncer() {
+  ann.token++; clearTimeout(ann.hideT); clearTimeout(ann.safeT);
+  if (ann.ctl) { try { ann.ctl.abort(); } catch (e) { } ann.ctl = null; }
+  if (ann.src) { try { ann.src.onended = null; ann.src.stop(); } catch (e) { } ann.src = null; }
+  ann.utt = null; try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) { }
+  audio.duck(false); annCap.classList.remove('on');
+}
+function speakText(text, my) {
+  try {
+    if (!('speechSynthesis' in window)) return;
+    const u = new SpeechSynthesisUtterance(text), vs = speechSynthesis.getVoices() || [];
+    const en = vs.filter(v => /^en([-_]|$)/i.test(v.lang)); // best-sounding first: natural/neural/enhanced voices, then known good ones
+    const v = en.find(x => /natural|neural|enhanced|premium/i.test(x.name)) || en.find(x => /samantha|ava|allison|aria|jenny|google us english|google uk english female|karen|moira/i.test(x.name)) || en.find(x => !/zira|david|mark|fred|albert|bad news|bells|boing|bubbles|cellos|jester|organ|trinoids|whisper|wobble|zarvox/i.test(x.name)) || en[0];
+    if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'en-US';
+    u.rate = 1; u.pitch = 1.1; u.volume = muted ? 0 : 1;
+    u.onend = u.onerror = () => { if (ann.utt === u) finishVoice(my); };
+    ann.utt = u; audio.duck(true); speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (e) { }
+}
+async function playVoice(url, my) { // decode with the game's own (already unlocked) audio context
+  try {
+    const vg = audio.voice(), ctx = audio.ctx; if (!vg || !ctx) return false;
+    const bin = atob(url.slice(url.indexOf(',') + 1)), bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const buf = await new Promise((res, rej) => { const p = ctx.decodeAudioData(bytes.buffer, res, rej); if (p && p.then) p.then(res, rej); });
+    if (my !== ann.token) return true;
+    if (ctx.state === 'suspended') { try { await ctx.resume(); } catch (e) { } }
+    const src = ctx.createBufferSource(); src.buffer = buf; src.connect(vg); ann.src = src; audio.duck(true);
+    src.onended = () => { if (ann.src === src) finishVoice(my); };
+    src.start(); return true;
+  } catch (e) { console.warn('Announcer: could not play the recorded voice', e); return false; }
+}
+function announce(text, audioUrl, my) {
+  if (my !== ann.token || !show.on) return;
+  showCaption(text);
+  ann.safeT = setTimeout(() => finishVoice(my), (text.split(/\s+/).length * .55 + 8) * 1000); // never leave the music ducked
+  if (muted) return;
+  const fallback = why => { if (my !== ann.token) return; console.warn('Announcer: ' + why + (DEVICE_VOICE ? ', using the device voice' : ', staying quiet')); if (DEVICE_VOICE) speakText(text, my); else finishVoice(my); };
+  if (typeof audioUrl === 'string' && audioUrl.startsWith('data:audio/')) playVoice(audioUrl, my).then(ok => { if (!ok) fallback('the recorded voice could not be played'); });
+  else fallback('no recorded voice came back');
+}
+function startAnnouncer(payload, retry) {
+  const my = retry ? ann.token : ++ann.token, ac = new AbortController(), tm = setTimeout(() => ac.abort(), 25000); ann.ctl = ac; // Claude + voice usually takes 4-10 s
+  fetch(API_BASE + '/narrate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ac.signal })
+    .then(r => { if (!r.ok) throw new Error('narrate ' + r.status); return r.json(); })
+    .then(d => { clearTimeout(tm); if (!d || typeof d.text !== 'string' || !d.text.trim()) throw new Error('empty'); announce(d.text.trim(), d.audio, my); })
+    .catch(e => {
+      clearTimeout(tm); if (my !== ann.token || !show.on) return;
+      const why = 'request failed (' + (e && e.name === 'AbortError' ? 'timed out' : e && e.message) + ')';
+      if (!retry && !(e && e.name === 'AbortError')) { console.warn('Announcer: ' + why + ', trying once more'); startAnnouncer(payload, true); return; }
+      announce(localText(payload), null, my);
+    });
+}
+function onRunwayTap() { // everything that needs the tap (snapshots, audio and speech unlock) happens right here
+  if (show.on) return;
+  let payload = null;
+  if (ann.on) {
+    if (DEVICE_VOICE) primeSpeech();
+    try { payload = { theme: (THEMES[themeId] || {}).short || '', voice: true, models: captureModels() }; } catch (e) { payload = null; }
+    if (!payload) payload = { theme: (THEMES[themeId] || {}).short || '', voice: true, models: [modelInfo(active().cfg, designerName, null)] };
+  }
+  startShow();
+  if (payload) startAnnouncer(payload);
+}
+muteBtn.addEventListener('click', () => { if (muted) { try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) { } } });
 
 /* ============================================================================
    Photo
@@ -3139,7 +3458,7 @@ const closet = (() => {
     const ch = active(), g = ch.getGarment(); ensureGarment(g);
     const cfg = JSON.parse(JSON.stringify(ch.cfg));
     return { id: 'o' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), cfg,
-      design: { bg: g.bgSpec, deco: g.dc.toDataURL('image/png') }, thumb: thumb() };
+      design: { bg: g.bgSpec, deco: g.dc.toDataURL('image/png') }, thumb: thumb(), name: designerName };
   }
   function render() {
     const grid = $('#closetGrid'); grid.replaceChildren();
@@ -3150,6 +3469,9 @@ const closet = (() => {
       card.setAttribute('aria-label', 'Wear outfit: ' + (d ? d.name : 'dress'));
       const img = document.createElement('img'); img.src = o.thumb || ''; img.alt = '';
       const nm = document.createElement('span'); nm.className = 'on'; nm.textContent = d ? d.name : 'Outfit';
+      const share = document.createElement('button'); share.className = 'share'; share.textContent = '📤 Share'; share.setAttribute('aria-label', 'Share this outfit with a code');
+      share.addEventListener('click', e => { e.stopPropagation(); shareOutfit(o, share); });
+      share.addEventListener('keydown', e => e.stopPropagation());
       const del = document.createElement('button'); del.className = 'del'; del.textContent = '✕'; del.setAttribute('aria-label', 'Delete this outfit');
       del.addEventListener('click', e => {
         e.stopPropagation();
@@ -3157,11 +3479,66 @@ const closet = (() => {
         tx('readwrite', s => s.delete(o.id)).then(load).then(render).catch(() => toast('Could not delete that one'));
       });
       card.addEventListener('click', () => wear(o));
-      card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wear(o); } });
-      card.append(img, nm, del); grid.append(card);
+      card.addEventListener('keydown', e => { if (e.target === card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); wear(o); } });
+      card.append(img, nm, share, del);
+      if (o.from) { const fr = document.createElement('span'); fr.className = 'from'; fr.textContent = 'from ' + o.from; card.append(fr); }
+      grid.append(card);
     });
     $('#closetSave').disabled = false;
+    if (duo.id && !items.some(x => x.id === duo.id)) { duo.id = ''; duo.outfit = null; store.set('tfs.v1.partner', ''); }
   }
+  /* ---- share by code (needs the internet; every failure turns into a friendly message) ---- */
+  const JSON_H = { 'Content-Type': 'application/json' };
+  async function api(path, opt, ms) {
+    const ac = new AbortController(), tm = setTimeout(() => ac.abort(), ms || 12000);
+    try { const r = await fetch(API_BASE + path, Object.assign({ signal: ac.signal }, opt)); let data = null; try { data = await r.json(); } catch (e) { } return { ok: r.ok, status: r.status, data }; }
+    finally { clearTimeout(tm); }
+  }
+  const MSG_OFFLINE = 'Sharing needs the internet. Try again later!', MSG_BAD = "Hmm, that code didn't work. Check the letters and numbers!", MSG_MANY = 'Too many tries today. Try again tomorrow!';
+  let msgT = 0;
+  function msg(text, kind) { const m = $('#closetMsg'); clearTimeout(msgT); if (!text) { m.classList.add('hidden'); return; } m.textContent = text; m.className = 'closet-msg ' + (kind || ''); msgT = setTimeout(() => m.classList.add('hidden'), 9000); }
+  function showShare(code) { msg(''); $('#shareCodeBig').textContent = code; const sp = $('#sharePanel'); sp.classList.remove('hidden'); try { sp.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) { } }
+  $('#shareDone').addEventListener('click', () => $('#sharePanel').classList.add('hidden'));
+  async function shareOutfit(o, btn) {
+    if (o.shareCode && o.sharedAt && Date.now() - o.sharedAt < 29 * 864e5) { showShare(o.shareCode); return; }
+    btn.disabled = true; const old = btn.textContent; btn.textContent = '⏳ Sending...'; $('#sharePanel').classList.add('hidden'); msg('');
+    try {
+      const r = await api('/share', { method: 'POST', headers: JSON_H, body: JSON.stringify({ outfit: { cfg: o.cfg, design: o.design, thumb: o.thumb, name: (o.name || designerName || '').slice(0, 18) } }) }, 25000);
+      if (r.ok && r.data && typeof r.data.code === 'string') {
+        o.shareCode = r.data.code; o.sharedAt = Date.now(); tx('readwrite', s => s.put(o)).catch(() => { });
+        showShare(o.shareCode);
+      } else if (r.status === 429) msg(MSG_MANY, 'bad');
+      else if (r.status === 400 || r.status === 413) msg('That outfit is too big to share. Try a simpler drawing!', 'bad');
+      else msg(MSG_OFFLINE, 'bad');
+    } catch (e) { msg(MSG_OFFLINE, 'bad'); }
+    finally { btn.disabled = false; btn.textContent = old; }
+  }
+  const normCode = v => String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const cleanName = v => typeof v === 'string' ? v.replace(/[<>]/g, '').trim().slice(0, 18) : '';
+  async function getOutfit() {
+    const inp = $('#getCode'), btn = $('#getGo'), code = normCode(inp.value); inp.value = code; $('#sharePanel').classList.add('hidden');
+    if (code.length < 3 || code.length > 16) { msg(MSG_BAD, 'bad'); return; }
+    if (items.length >= MAX) { msg('Closet is full! Delete one with ✕ first', 'bad'); return; }
+    if (items.some(x => x.gotCode === code)) { msg('You already got that one! Look in your closet 👗', 'good'); return; }
+    btn.disabled = true; msg('');
+    try {
+      const r = await api('/share/' + encodeURIComponent(code));
+      if (r.status === 404) { msg(MSG_BAD, 'bad'); return; }
+      if (r.status === 429) { msg(MSG_MANY, 'bad'); return; }
+      const d = r.data;
+      if (!r.ok || !d) { msg(MSG_OFFLINE, 'bad'); return; }
+      if (!d.cfg || typeof d.cfg !== 'object' || !d.design || typeof d.design.deco !== 'string' || !d.design.deco.startsWith('data:image/png;base64,') || !DRESSES.some(x => x.id === d.cfg.dress)) { msg(MSG_BAD, 'bad'); return; }
+      const name = cleanName(d.name);
+      const rec = { id: 'o' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t: Date.now(), cfg: cleanCfg(d.cfg), design: { bg: d.design.bg && typeof d.design.bg === 'object' ? d.design.bg : null, deco: d.design.deco },
+        thumb: typeof d.thumb === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(d.thumb) ? d.thumb : '', name, from: name || 'a friend', gotCode: code };
+      await tx('readwrite', s => s.put(rec)); await load(); render(); inp.value = '';
+      msg('Got it! ' + (name ? name + "'s" : "A friend's") + ' outfit is in your closet 🎉', 'good'); wflash();
+    } catch (e) { msg(MSG_OFFLINE, 'bad'); }
+    finally { btn.disabled = false; }
+  }
+  $('#getGo').addEventListener('click', getOutfit);
+  $('#getCode').addEventListener('input', e => { const i = e.target, p = i.selectionStart; i.value = i.value.toUpperCase(); try { i.setSelectionRange(p, p); } catch (x) { } });
+  $('#getCode').addEventListener('keydown', e => { if (e.key === 'Enter') getOutfit(); });
   function wear(o) {
     const ch = active(), c = o.cfg || {}, okIdx = (v, l) => Number.isInteger(v) && v >= 0 && v < l.length;
     if (okIdx(c.skin, SKINS)) ch.setSkin(c.skin);
@@ -3193,7 +3570,7 @@ const closet = (() => {
       .catch(() => { b.disabled = false; toast('Could not save. The closet may be full.'); });
   }
   function open() {
-    $('#closetOverlay').classList.remove('hidden');
+    $('#closetOverlay').classList.remove('hidden'); $('#sharePanel').classList.add('hidden'); msg('');
     load().then(render).catch(() => {
       items = []; render(); $('#closetSave').disabled = true;
       $('#closetGrid').firstChild.textContent = 'The closet can\'t save in this browser (private mode?).';
@@ -3253,6 +3630,8 @@ function stepWorld(dt) {
   faceFill.intensity = lerp(faceFill.intensity, S ? FACE_FILL : 0, k);
   spotCones.forEach(m => m.visible = S);
   c.update(dt, phase);
+  if (show.on && show.duo) show.partner.update(dt, phase + .5);
+  if (duo.fill) duo.fill.intensity = lerp(duo.fill.intensity, S && show.duo ? FACE_FILL : 0, k);
   // camera
   if (show.camMode === 'show') {
     const tp = showCamPos(); tp.x += Math.sin(tAll * .4) * .25; tp.y += Math.sin(tAll * .6) * .05;
@@ -3271,8 +3650,11 @@ audio.setTrack(musicId);
 applyTheme(themeId);
 refreshMute();
 refreshUI();
+if (duo.id) { // remembered partner: fetch her outfit and get the model ready in the background
+  closet.load().then(a => { const o = a.find(x => x.id === duo.id); if (o) { duo.outfit = o; setTimeout(ensurePartner, 800); } else { duo.id = ''; store.set('tfs.v1.partner', ''); } }).catch(() => { });
+}
 frame();
-window.__tfs = { get hold() { return holdSim; }, set hold(v) { holdSim = !!v; }, advance: s => { for (let t = 0; t < s; t += .05) stepWorld(.05); }, controls, chars, painter, show, get cur() { return cur; }, startShow, stopShow, takePhoto, renderer, scene, camera, DRESSES, THEMES, POSES, EXPRS, PRESETS, STICKERS, PATS, audio, applyTheme, get themeId() { return themeId; }, get musicId() { return musicId; }, setMusic };
+window.__tfs = { duo, ann, onRunwayTap, snapChar, captureModels, banner, get hold() { return holdSim; }, set hold(v) { holdSim = !!v; }, advance: s => { for (let t = 0; t < s; t += .05) stepWorld(.05); }, controls, chars, painter, show, get cur() { return cur; }, startShow, stopShow, takePhoto, renderer, scene, camera, DRESSES, THEMES, POSES, EXPRS, PRESETS, STICKERS, PATS, audio, applyTheme, get themeId() { return themeId; }, get musicId() { return musicId; }, setMusic };
 </script>
 </body>
 </html>

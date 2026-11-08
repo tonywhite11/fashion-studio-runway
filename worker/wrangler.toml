@@ -1,0 +1,18 @@
+name = "fashion-studio-api"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Share codes + spending counters. Create with: npx wrangler kv namespace create SHARES
+# then paste the id it prints below (the placeholder works for local `wrangler dev`).
+[[kv_namespaces]]
+binding = "SHARES"
+id = "3d328bbf50a5496fbdc7a040276dcdd9"
+
+[vars]
+ALLOWED_ORIGINS = "https://tonywhite11.github.io,http://localhost:8766"
+NARRATOR_MODEL = "claude-opus-5-5"
+ELEVENLABS_MODEL = "eleven_turbo_v2_5"
+ELEVENLABS_VOICE_ID = "XiPS9cXxAVbaIWtGDHDh"
+DAILY_NARRATIONS = "80"
+PER_IP_NARRATIONS = "40"
