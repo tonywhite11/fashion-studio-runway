@@ -200,6 +200,13 @@ async function claudeNarration(env, models, theme) {
 }
 
 async function speak(env, text) {
+  for (let attempt = 0; attempt < 2; attempt++) { // one retry: a recorded voice beats the device's robotic one
+    const audio = await speakOnce(env, text);
+    if (audio) return audio;
+  }
+  return null;
+}
+async function speakOnce(env, text) {
   const voice = env.ELEVENLABS_VOICE_ID;
   if (!voice) return null;
   try {
