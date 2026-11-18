@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real model on the runway</title>
+<style>
+  :root{
+    --ink:#f3ecff; --muted:#a898d4; --panel:rgba(31,23,64,.86);
+    --line:#44356f; --pink:#ff5fa2;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#140e28}
+  body{font-family:ui-rounded,'Segoe UI',system-ui,sans-serif;color:var(--ink)}
+  canvas{display:block}
+  #ui{
+    position:fixed;left:14px;right:14px;bottom:14px;z-index:5;
+    background:var(--panel);backdrop-filter:blur(14px);
+    border:1px solid var(--line);border-radius:14px;padding:11px 13px;
+  }
+  #ui h2{margin:0 0 8px;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .row{display:flex;flex-wrap:wrap;gap:6px}
+  button{
+    font:inherit;font-size:12px;padding:7px 11px;border-radius:9px;cursor:pointer;
+    border:1px solid var(--line);background:#271d52;color:var(--ink);
+  }
+  button:hover{background:#32275f}
+  button[aria-pressed="true"]{background:var(--pink);border-color:var(--pink);color:#2a0f1d;font-weight:600}
+  #note{margin-top:8px;font-size:11.5px;color:var(--muted)}
+  #err{position:fixed;inset:0;display:none;place-items:center;padding:30px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="err"></div>
+<div id="ui">
+  <h2>Walk</h2>
+  <div class="row" style="margin-bottom:10px">
+    <button id="walkBtn" aria-pressed="false">▶ walk the runway</button>
+    <span id="walkInfo" style="font-size:11.5px;color:var(--muted);align-self:center"></span>
+  </div>
+  <h2>Pose library</h2>
+  <div class="row" id="poses"></div>
+  <div id="note"></div>
+</div>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three'
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { loadGlbCharacter, RUNWAY_POSES } from '/assets/characters/glb-character.js'
+
+const renderer = new THREE.WebGLRenderer({ antialias: true })
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+renderer.setSize(innerWidth, innerHeight)
+renderer.outputColorSpace = THREE.SRGBColorSpace
+document.body.prepend(renderer.domElement)
+
+const scene = new THREE.Scene()
+scene.background = new THREE.Color(0x140e28)
+scene.fog = new THREE.Fog(0x140e28, 9, 26)
+
+scene.add(new THREE.HemisphereLight(0xffd9ef, 0x2a1f52, 1.9))
+const key = new THREE.DirectionalLight(0xffffff, 2.0); key.position.set(3, 6, 5); scene.add(key)
+const rim = new THREE.DirectionalLight(0xff8ec4, 1.1); rim.position.set(-4, 3, -5); scene.add(rim)
+
+// runway
+const runway = new THREE.Mesh(
+  new THREE.BoxGeometry(2.2, 0.08, 24),
+  new THREE.MeshStandardMaterial({ color: 0xf6e4f3, roughness: .5, metalness: .05 })
+)
+runway.position.y = -0.04
+scene.add(runway)
+for (let i = -5; i <= 5; i++) {
+  for (const s of [-1, 1]) {
+    const lamp = new THREE.Mesh(
+      new THREE.SphereGeometry(0.07, 12, 10),
+      new THREE.MeshBasicMaterial({ color: 0xffd98a })
+    )
+    lamp.position.set(s * 1.25, 0.06, i * 2.1)
+    scene.add(lamp)
+  }
+}
+
+const camera = new THREE.PerspectiveCamera(38, innerWidth / innerHeight, 0.1, 100)
+camera.position.set(1.9, 1.55, 4.2)
+const controls = new OrbitControls(camera, renderer.domElement)
+controls.target.set(0, 0.95, 0)
+controls.enableDamping = true
+
+const character = await loadGlbCharacter(THREE, {
+  url: '/assets/characters/model.glb',
+  height: 1.72,
+})
+
+if (!character) {
+  document.getElementById('err').style.display = 'grid'
+  document.getElementById('err').textContent =
+    'model.glb did not load. Run tools/prep-character/prep.py first.'
+} else {
+  scene.add(character.group)
+
+  const row = document.getElementById('poses')
+  const buttons = []
+  const ordered = [
+    ...character.poses.filter((p) => RUNWAY_POSES.includes(p)),
+    ...character.poses.filter((p) => !RUNWAY_POSES.includes(p)),
+  ]
+  for (const name of ordered) {
+    const b = document.createElement('button')
+    b.textContent = name.replace(/_/g, ' ').replace(/^(female|male) /, '')
+    b.title = name
+    if (RUNWAY_POSES.includes(name)) b.style.borderColor = '#ff5fa2'
+    b.onclick = () => {
+      stopWalking()
+      character.useClipMode(true)
+      character.setPose(name)
+      buttons.forEach((x) => x.setAttribute('aria-pressed', String(x === b)))
+    }
+    row.append(b)
+    buttons.push(b)
+  }
+  document.getElementById('note').textContent =
+    `${character.poses.length} clips · pink outline = reads as a runway pose · drag to orbit`
+
+  character.useClipMode(false)   // start on the procedural gait, standing
+  window.__char = character      // handy when tuning the gait from the console
+}
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight
+  camera.updateProjectionMatrix()
+  renderer.setSize(innerWidth, innerHeight)
+})
+
+// The same two numbers the game's runway show already keeps: a blend weight
+// eased toward a target, and a phase that advances with it.
+let walking = false, phase = 0
+const SPEED = 1.15, CYC = 0.62
+
+const walkBtn = document.getElementById('walkBtn')
+const walkInfo = document.getElementById('walkInfo')
+
+function stopWalking() {
+  walking = false
+  walkBtn.setAttribute('aria-pressed', 'false')
+  walkBtn.textContent = '▶ walk the runway'
+}
+
+if (character) {
+  walkBtn.onclick = () => {
+    walking = !walking
+    walkBtn.setAttribute('aria-pressed', String(walking))
+    walkBtn.textContent = walking ? '■ stop' : '▶ walk the runway'
+    character.useClipMode(false)
+    document.querySelectorAll('#poses button').forEach((b) => b.setAttribute('aria-pressed', 'false'))
+  }
+}
+
+const clock = new THREE.Clock()
+renderer.setAnimationLoop(() => {
+  const dt = clock.getDelta()
+  if (character) {
+    character.walkAmt += ((walking ? 1 : 0) - character.walkAmt) * (1 - Math.exp(-dt * 6))
+    phase += dt * Math.PI * 2 * CYC * Math.max(0.2, character.walkAmt)
+    if (!character.useClips) {
+      character.root.position.z += SPEED * dt * character.walkAmt
+      if (character.root.position.z > 9) character.root.position.z = -9
+      // keep her in frame: the show's camera tracks the model down the runway
+      const z = character.root.position.z
+      controls.target.z += (z - controls.target.z) * (1 - Math.exp(-dt * 3))
+      camera.position.z += (z + 4.2 - camera.position.z) * (1 - Math.exp(-dt * 3))
+    }
+    character.update(dt, phase)
+    walkInfo.textContent = character.useClips
+      ? 'clip mode'
+      : `walkAmt ${character.walkAmt.toFixed(2)}   z ${character.root.position.z.toFixed(1)}`
+  }
+  controls.update()
+  renderer.render(scene, camera)
+})
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pose sheet</title>
+<style>
+  :root{
+    --bg:#15102a; --panel:#1f1740; --line:#3a2d66; --ink:#f3ecff; --muted:#a898d4;
+    --pink:#ff5fa2; --purple:#9d78ff;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:ui-rounded,'Segoe UI',system-ui,sans-serif;
+  }
+  header{padding:18px 22px 10px}
+  h1{margin:0;font-size:19px;font-weight:600;letter-spacing:.01em}
+  p.sub{margin:5px 0 0;color:var(--muted);font-size:13px}
+  #status{margin:10px 22px;color:var(--muted);font-size:13px}
+  #grid{
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr));
+    gap:12px; padding:12px 22px 40px;
+  }
+  .cell{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    overflow:hidden; display:flex; flex-direction:column;
+  }
+  .cell canvas{display:block;width:100%;height:230px;background:#241b4d}
+  .cell .name{
+    padding:7px 10px; font-size:11.5px; color:var(--ink);
+    border-top:1px solid var(--line); font-variant-numeric:tabular-nums;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .cell .name b{color:var(--pink);font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <h1>Pose sheet</h1>
+  <p class="sub">Every clip in <code>assets/characters/model.glb</code>, drawn on the real rig.</p>
+</header>
+<div id="status">loading…</div>
+<div id="grid"></div>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js'
+
+const status = document.getElementById('status')
+const grid = document.getElementById('grid')
+
+const loader = new GLTFLoader()
+let gltf
+try {
+  gltf = await loader.loadAsync('/assets/characters/model.glb')
+} catch (e) {
+  status.textContent = 'could not load model.glb: ' + e.message
+  throw e
+}
+
+const clips = gltf.animations.slice().sort((a, b) => a.name.localeCompare(b.name))
+status.textContent = `${clips.length} clips, ${gltf.scene.children.length} root nodes`
+
+// One tiny renderer reused for every cell: 18 WebGL contexts would hit the
+// browser limit and start silently killing the earlier ones.
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false })
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2))
+
+for (const clip of clips) {
+  const cell = document.createElement('div')
+  cell.className = 'cell'
+  const canvas = document.createElement('canvas')
+  const label = document.createElement('div')
+  label.className = 'name'
+  label.innerHTML = `<b>${clip.name}</b>`
+  cell.append(canvas, label)
+  grid.append(cell)
+
+  const scene = new THREE.Scene()
+  scene.background = new THREE.Color(0x241b4d)
+  scene.add(new THREE.HemisphereLight(0xffeaf6, 0x3a2d66, 2.2))
+  const key = new THREE.DirectionalLight(0xffffff, 1.6)
+  key.position.set(2, 4, 3)
+  scene.add(key)
+
+  // each cell needs its own skeleton, or they all share one pose
+  const model = cloneSkinned(gltf.scene)
+  scene.add(model)
+
+  const mixer = new THREE.AnimationMixer(model)
+  const action = mixer.clipAction(clip)
+  action.play()
+  mixer.update(clip.duration > 0 ? clip.duration * 0.5 : 0)
+
+  // frame the posed figure rather than guessing a camera distance
+  model.updateMatrixWorld(true)
+  const box = new THREE.Box3().setFromObject(model)
+  const size = box.getSize(new THREE.Vector3())
+  const mid = box.getCenter(new THREE.Vector3())
+  const cam = new THREE.PerspectiveCamera(32, 1, 0.05, 60)
+  const reach = Math.max(size.x, size.y, size.z)
+  cam.position.set(mid.x + reach * 0.55, mid.y + reach * 0.12, mid.z + reach * 2.3)
+  cam.lookAt(mid)
+
+  const w = 380, h = 460
+  canvas.width = w; canvas.height = h
+  cam.aspect = w / h
+  cam.updateProjectionMatrix()
+  renderer.setSize(w, h, false)
+  renderer.render(scene, cam)
+  canvas.getContext('2d').drawImage(renderer.domElement, 0, 0, w, h)
+
+  label.innerHTML += ` <span style="color:var(--muted)">· ${size.y.toFixed(2)}m</span>`
+}
+
+status.textContent = `${clips.length} clips rendered`
+</script>
+</body>
+</html>

@@ -6,3 +6,7 @@ worker/.dev.vars
 # raw CC5 exports stay local (large, licensed); converted GLBs are committed
 assets/cc5/incoming/**/*.fbx
 assets/cc5/incoming/**/*.fbm/
+
+# Placeholder Mixamo model (licensed asset; keep out of the public repo)
+assets/characters/*.glb
+assets/characters/pose-sheet.html
