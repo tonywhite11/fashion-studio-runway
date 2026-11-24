@@ -5,6 +5,10 @@ A 3D dress-up game for kids: pick a dress, paint your own design, style your mod
 **Play:** https://tonywhite11.github.io/fashion-studio-runway/ (works on iPad, phones and PC).
 On iPad, open it in Safari, then Share → **Add to Home Screen** for a full-screen app icon.
 
+| Design studio | Runway show |
+|---|---|
+| ![Painting polka dots and stickers on an A-line dress](docs/studio.jpg) | ![The model walking the runway under sparkles](docs/runway.jpg) |
+
 ## What's in it
 - 14 dresses, including Hanbok, Idol, Ninja, Kurta Suruwal, Gunyu Cholo and Haku Patasi
 - Paint: brushes, rainbow, glitter, eraser, fill, gradients, 8 colors plus a color wheel and "My colors"
